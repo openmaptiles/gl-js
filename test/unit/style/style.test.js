@@ -1,20 +1,19 @@
+import '../../stub_loader';
 import {test} from '../../util/test';
-import assert from 'assert';
-import Style from '../../../src/style/style';
-import SourceCache from '../../../src/source/source_cache';
-import StyleLayer from '../../../src/style/style_layer';
-import Transform from '../../../src/geo/transform';
-import {extend} from '../../../src/util/util';
-import {RequestManager} from '../../../src/util/mapbox';
-import {Event, Evented} from '../../../src/util/evented';
-import window from '../../../src/util/window';
+import Style from '../../../rollup/build/tsc/style/style';
+import SourceCache from '../../../rollup/build/tsc/source/source_cache';
+import StyleLayer from '../../../rollup/build/tsc/style/style_layer';
+import Transform from '../../../rollup/build/tsc/geo/transform';
+import {extend} from '../../../rollup/build/tsc/util/util';
+import {RequestManager} from '../../../rollup/build/tsc/util/mapbox';
+import {Event, Evented} from '../../../rollup/build/tsc/util/evented';
 import {
     setRTLTextPlugin,
     clearRTLTextPlugin,
     evented as rtlTextPluginEvented
-} from '../../../src/source/rtl_text_plugin';
-import browser from '../../../src/util/browser';
-import {OverscaledTileID} from '../../../src/source/tile_id';
+} from '../../../rollup/build/tsc/source/rtl_text_plugin';
+import browser from '../../../rollup/build/tsc/util/browser';
+import {OverscaledTileID} from '../../../rollup/build/tsc/source/tile_id';
 
 function createStyleJSON(properties) {
     return extend({
@@ -58,14 +57,15 @@ class StubMap extends Evented {
 
 test('Style', (t) => {
     t.afterEach((callback) => {
-        window.restore();
+        window.clearFakeXMLHttpRequest();
+        window.clearFakeWorkerPresence();
         callback();
     });
 
     t.test('registers plugin state change listener', (t) => {
         clearRTLTextPlugin();
         window.useFakeXMLHttpRequest();
-        window.fakeWorkerPresence();
+        window.useFakeWorkerPresence();
         t.spy(Style, 'registerForPluginStateChange');
         const style = new Style(new StubMap());
         t.spy(style.dispatcher, 'broadcast');
@@ -83,9 +83,7 @@ test('Style', (t) => {
     t.test('loads plugin immediately if already registered', (t) => {
         clearRTLTextPlugin();
         window.useFakeXMLHttpRequest();
-        window.fakeWorkerPresence();
-        window.URL.createObjectURL = () => 'blob:';
-        t.tearDown(() => delete window.URL.createObjectURL);
+        window.useFakeWorkerPresence();
         window.server.respondWith('/plugin.js', "doesn't matter");
         let firstError = true;
         setRTLTextPlugin("/plugin.js", (error) => {
@@ -95,6 +93,7 @@ test('Style', (t) => {
                 t.equals(error.message, 'RTL Text Plugin failed to import scripts from /plugin.js');
                 t.end();
                 window.clearFakeWorkerPresence();
+                window.clearFakeXMLHttpRequest();
                 firstError = false;
             }
         });
@@ -112,7 +111,7 @@ test('Style#loadURL', (t) => {
     });
 
     t.afterEach((callback) => {
-        window.restore();
+        window.clearFakeXMLHttpRequest();
         callback();
     });
 
@@ -184,7 +183,7 @@ test('Style#loadURL', (t) => {
 
 test('Style#loadJSON', (t) => {
     t.afterEach((callback) => {
-        window.restore();
+        window.clearFakeXMLHttpRequest();
         callback();
     });
 
@@ -219,27 +218,19 @@ test('Style#loadJSON', (t) => {
         // Stubbing to bypass Web APIs that supported by jsdom:
         // * `URL.createObjectURL` in ajax.getImage (https://github.com/tmpvar/jsdom/issues/1721)
         // * `canvas.getContext('2d')` in browser.getImageData
-        t.stub(window.URL, 'revokeObjectURL');
         t.stub(browser, 'getImageData');
         // stub Image so we can invoke 'onload'
         // https://github.com/jsdom/jsdom/commit/58a7028d0d5b6aacc5b435daee9fd8f9eacbb14c
-        const img = {};
-        t.stub(window, 'Image').returns(img);
-        // stub this manually because sinon does not stub non-existent methods
-        assert(!window.URL.createObjectURL);
-        window.URL.createObjectURL = () => 'blob:';
-        t.tearDown(() => delete window.URL.createObjectURL);
 
         // fake the image request (sinon doesn't allow non-string data for
         // server.respondWith, so we do so manually)
         const requests = [];
-        window.XMLHttpRequest.onCreate = req => { requests.push(req); };
+        XMLHttpRequest.onCreate = req => { requests.push(req); };
         const respond = () => {
             let req = requests.find(req => req.url === 'http://example.com/sprite.png');
             req.setStatus(200);
             req.response = new ArrayBuffer(8);
             req.onload();
-            img.onload();
 
             req = requests.find(req => req.url === 'http://example.com/sprite.json');
             req.setStatus(200);
@@ -518,7 +509,7 @@ test('Style#setState', (t) => {
             t.stub(style, 'removeSource').callsFake(() => t.fail('removeSource called'));
             t.stub(style, 'addSource').callsFake(() => t.fail('addSource called'));
             style.setState(initial);
-            window.restore();
+            window.clearFakeXMLHttpRequest();
             t.end();
         });
         window.server.respond();

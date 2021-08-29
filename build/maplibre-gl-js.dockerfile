@@ -1,6 +1,6 @@
 # see: publish-release.sh to build/run this
 
-FROM node:10
+FROM node:14
 
 ENV DEBIAN_FRONTEND=noninteractive
 

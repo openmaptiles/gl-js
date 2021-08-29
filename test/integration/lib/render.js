@@ -1,9 +1,12 @@
-import path from 'path';
+import path, {dirname} from 'path';
 import fs from 'fs';
 import {PNG} from 'pngjs';
 import harness from './harness';
 import pixelmatch from 'pixelmatch';
-import * as glob from 'glob';
+import {fileURLToPath} from 'url';
+import glob from 'glob';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /**
  * Run the render test suite, compute differences to expected values (making exceptions based on
@@ -36,7 +39,7 @@ import * as glob from 'glob';
  * @param {renderFn} render - a function that performs the rendering
  * @returns {undefined} terminates the process when testing is complete
  */
-export function run(implementation, ignores, render) {
+export default function run(implementation, ignores, render) {
     const options = {ignores, tests:[], shuffle:false, recycleMap:false, seed:makeHash()};
 
     // https://stackoverflow.com/a/1349426/229714

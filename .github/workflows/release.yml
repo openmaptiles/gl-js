@@ -18,15 +18,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Use Node.js 10 x64
+      - name: Use Node.js 14 x64
         uses: actions/setup-node@v2
         with:
-          node-version: 10
+          node-version: 14
           architecture: x64
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install
-        run: yarn install --frozen-lockfile
+        run: npm ci
 
       - name: Validate version tag
         run: |
@@ -45,17 +45,16 @@ jobs:
 
       - name: Lint
         run: |
-          yarn run lint
-          yarn run lint-docs
-          yarn run lint-css
+          npm run lint
+          npm run lint-docs
+          npm run lint-css
 
       - name: Test
         run: |
-          yarn run test-flow
-          yarn run test-unit
-          yarn run test-render
-          yarn run test-query
-          yarn run test-expressions
+          npm run test-unit
+          npm run test-render
+          npm run test-query
+          npm run test-expressions
 
   release:
     name: Release
@@ -70,15 +69,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Use Node.js 10 x64
+      - name: Use Node.js 14 x64
         uses: actions/setup-node@v2
         with:
-          node-version: 10
+          node-version: 14
           architecture: x64
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install
-        run: yarn install --frozen-lockfile
+        run: npm ci
 
       - name: Validate version tag
         run: |
@@ -97,8 +96,8 @@ jobs:
 
       - name: Build
         run: |
-          yarn run build-prod-min
-          yarn run build-css
+          npm run build-prod-min
+          npm run build-css
 
       - name: Create Archive
         run: |

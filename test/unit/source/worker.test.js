@@ -1,6 +1,6 @@
+import '../../stub_loader';
 import {test} from '../../util/test';
-import Worker from '../../../src/source/worker';
-import window from '../../../src/util/window';
+import Worker from '../../../rollup/build/tsc/source/worker';
 
 const _self = {
     addEventListener() {}
@@ -18,7 +18,7 @@ test('load tile', (t) => {
             request: {url: '/error'}// Sinon fake server gives 404 responses by default
         }, (err) => {
             t.ok(err);
-            window.restore();
+            window.clearFakeXMLHttpRequest();
             t.end();
         });
         window.server.respond();

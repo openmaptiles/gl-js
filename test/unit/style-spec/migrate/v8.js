@@ -1,5 +1,5 @@
 import {test} from '../../../util/test';
-import migrate from '../../../../src/style-spec/migrate/v8';
+import migrate from '../../../../rollup/build/tsc/style-spec/migrate/v8';
 
 test('split text-font', (t) => {
     const input = {

@@ -1,10 +1,11 @@
+import '../../stub_loader';
 import {test} from '../../util/test';
 import {
     queryRenderedFeatures,
     querySourceFeatures
-} from '../../../src/source/query_features.js';
-import SourceCache from '../../../src/source/source_cache.js';
-import Transform from '../../../src/geo/transform.js';
+} from '../../../rollup/build/tsc/source/query_features.js';
+import SourceCache from '../../../rollup/build/tsc/source/source_cache.js';
+import Transform from '../../../rollup/build/tsc/geo/transform.js';
 
 test('QueryFeatures#rendered', (t) => {
     t.test('returns empty object if source returns no tiles', (t) => {

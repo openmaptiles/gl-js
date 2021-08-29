@@ -1,5 +1,5 @@
 import {test} from '../../util/test';
-import declass from '../../../src/style-spec/declass';
+import declass from '../../../rollup/build/tsc/style-spec/declass';
 
 test('declass a style, one class', (t) => {
     const style = {

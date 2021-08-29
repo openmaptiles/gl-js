@@ -1,6 +1,7 @@
+import '../../../stub_loader';
 import {test} from '../../../util/test';
-import config from '../../../../src/util/config';
-import AttributionControl from '../../../../src/ui/control/attribution_control';
+import config from '../../../../rollup/build/tsc/util/config';
+import AttributionControl from '../../../../rollup/build/tsc/ui/control/attribution_control';
 import {createMap as globalCreateMap} from '../../../util';
 import simulate from '../../../util/simulate_interaction';
 

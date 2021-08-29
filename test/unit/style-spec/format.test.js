@@ -1,5 +1,5 @@
 import {test} from '../../util/test';
-import format from '../../../src/style-spec/format';
+import format from '../../../rollup/build/tsc/style-spec/format';
 
 function roundtrip(style) {
     return JSON.parse(format(style));

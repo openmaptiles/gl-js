@@ -1,8 +1,9 @@
+import '../../stub_loader';
 import {test} from '../../util/test';
-import GeoJSONWorkerSource from '../../../src/source/geojson_worker_source';
-import StyleLayerIndex from '../../../src/style/style_layer_index';
-import {OverscaledTileID} from '../../../src/source/tile_id';
-import perf from '../../../src/util/performance';
+import GeoJSONWorkerSource from '../../../rollup/build/tsc/source/geojson_worker_source';
+import StyleLayerIndex from '../../../rollup/build/tsc/style/style_layer_index';
+import {OverscaledTileID} from '../../../rollup/build/tsc/source/tile_id';
+import perf from '../../../rollup/build/tsc/util/performance';
 
 const actor = {send: () => {}};
 

@@ -1,10 +1,12 @@
 import {test} from '../util/test';
 import fs from 'fs';
-import path from 'path';
-import reference from '../../src/style-spec/reference/latest';
-import {Linter} from 'eslint';
-import {scripts} from '../../package.json';
+import path, {dirname} from 'path';
+import reference from '../../rollup/build/tsc/style-spec/reference/latest';
+import packageJson from '../../package.json';
+import browserify from 'browserify';
+import {fileURLToPath} from 'url';
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const minBundle = fs.readFileSync('dist/maplibre-gl.js', 'utf8');
 
 test('production build removes asserts', (t) => {
@@ -16,8 +18,8 @@ test('production build removes asserts', (t) => {
 test('trims package.json assets', (t) => {
     // confirm that the entire package.json isn't present by asserting
     // the absence of each of our script strings
-    for (const name in scripts) {
-        t.assert(minBundle.indexOf(scripts[name]) === -1);
+    for (const name in packageJson.scripts) {
+        t.assert(minBundle.indexOf(packageJson.scripts[name]) === -1);
     }
     t.end();
 });
@@ -29,30 +31,26 @@ test('trims reference.json fields', (t) => {
 });
 
 test('can be browserified', (t) => {
-    const browserify = require('browserify');
     browserify(path.join(__dirname, 'browserify-test-fixture.js')).bundle((err) => {
         t.ifError(err);
         t.end();
     });
 });
 
-test('evaluates without errors', (t) => {
-    t.doesNotThrow(() => require(path.join(__dirname, '../../dist/maplibre-gl.js')));
-    t.end();
-});
-
-test('distributed in plain ES5 code', (t) => {
-    const linter = new Linter();
-    const messages = linter.verify(minBundle, {
-        parserOptions: {
-            ecmaVersion: 5
-        },
-        rules: {},
-        env: {
-            node: true
+test('evaluates without errors', async (t) => {
+    global.window = {
+        URL: {
+            createObjectURL: () => {}
         }
-    });
-    t.deepEqual(messages.map(message => `${message.line}:${message.column}: ${message.message}`), []);
+    };
+    global.Blob = function() {};
+    global.performance = {};
+    global.navigator = {};
+    try {
+        await import('../../dist/maplibre-gl.js');
+    } catch (e) {
+        t.error(e);
+    }
     t.end();
 });
 

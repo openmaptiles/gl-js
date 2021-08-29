@@ -1,10 +1,10 @@
 import {test} from '../../util/test';
-import {default as createFilter, isExpressionFilter} from '../../../src/style-spec/feature_filter';
+import {default as createFilter, isExpressionFilter} from '../../../rollup/build/tsc/style-spec/feature_filter';
 
-import convertFilter from '../../../src/style-spec/feature_filter/convert';
-import Point from '@mapbox/point-geometry';
-import MercatorCoordinate from '../../../src/geo/mercator_coordinate';
-import EXTENT from '../../../src/data/extent';
+import convertFilter from '../../../rollup/build/tsc/style-spec/feature_filter/convert';
+import Point from '../../../rollup/build/tsc/symbol/point';
+import MercatorCoordinate from '../../../rollup/build/tsc/geo/mercator_coordinate';
+import EXTENT from '../../../rollup/build/tsc/data/extent';
 
 test('filter', t => {
     t.test('expression, zoom', (t) => {

@@ -1,9 +1,10 @@
+import '../../stub_loader';
 import {test} from '../../util/test';
-import {createExpression, ZoomConstantExpression} from '../../../src/style-spec/expression';
-import EvaluationContext from '../../../src/style-spec/expression/evaluation_context';
-import properties from '../../../src/style/style_layer/symbol_style_layer_properties';
-import {PossiblyEvaluatedPropertyValue} from '../../../src/style/properties';
-import FormatSectionOverride from '../../../src/style/format_section_override';
+import {createExpression, ZoomConstantExpression} from '../../../rollup/build/tsc/style-spec/expression';
+import EvaluationContext from '../../../rollup/build/tsc/style-spec/expression/evaluation_context';
+import properties from '../../../rollup/build/tsc/style/style_layer/symbol_style_layer_properties';
+import {PossiblyEvaluatedPropertyValue} from '../../../rollup/build/tsc/style/properties';
+import FormatSectionOverride from '../../../rollup/build/tsc/style/format_section_override';
 
 test('evaluate', (t) => {
 

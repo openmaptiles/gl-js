@@ -1,5 +1,5 @@
 import {test} from '../../util/test';
-import resolveTokens from '../../../src/util/resolve_tokens';
+import resolveTokens from '../../../rollup/build/tsc/util/resolve_tokens';
 
 test('resolveToken', (t) => {
     t.equal('3 Fine Fields', resolveTokens({a:3, b:'Fine', c:'Fields'}, '{a} {b} {c}'));

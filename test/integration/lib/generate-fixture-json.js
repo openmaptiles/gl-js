@@ -1,13 +1,14 @@
-/* eslint-disable import/no-commonjs */
-const path = require('path');
-const fs = require('fs');
-const glob = require('glob');
-const localizeURLs = require('./localize-urls');
+import path from 'path';
+import fs from 'fs';
+import glob from 'glob';
+import localizeURLs from './localize-urls.js';
 
 const OUTPUT_FILE = 'fixtures.json';
 
-exports.generateFixtureJson = generateFixtureJson;
-exports.getAllFixtureGlobs = getAllFixtureGlobs;
+export default {
+    generateFixtureJson,
+    getAllFixtureGlobs
+};
 
 /**
  * Analyzes the contents of the specified `path.join(rootDirectory, suiteDirectory)`, and inlines

@@ -5,7 +5,7 @@ import {
     Uniform2f,
     Uniform3f,
     Uniform4f
-} from '../../../src/render/uniform_binding';
+} from '../../../rollup/build/tsc/render/uniform_binding';
 
 test('Uniform1i', (t) => {
     // test counts ensure we don't call the gl.uniform* setters more than expected

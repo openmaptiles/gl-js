@@ -1,6 +1,6 @@
+import '../../stub_loader';
 import {test} from '../../util/test';
-import Hash from '../../../src/ui/hash';
-import window from '../../../src/util/window';
+import Hash from '../../../rollup/build/tsc/ui/hash';
 import {createMap as globalCreateMap} from '../../util';
 
 test('hash', (t) => {

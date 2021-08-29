@@ -1,6 +1,6 @@
 import {test} from '../../../util/test';
 import {createMap as globalCreateMap} from '../../../util';
-import VectorTileSource from '../../../../src/source/vector_tile_source';
+import VectorTileSource from '../../../../rollup/build/tsc/source/vector_tile_source';
 
 function createMap(t, logoPosition, logoRequired) {
     return globalCreateMap(t, {
@@ -35,7 +35,7 @@ function createSource(options, logoRequired) {
     source.on('error', (e) => {
         throw e.error;
     });
-    const logoFlag = "mapbox_logo";
+    const logoFlag = "maplibreLogo";
     source[logoFlag] = logoRequired === undefined ? true : logoRequired;
     return source;
 }
@@ -59,7 +59,7 @@ test('LogoControl appears in the position specified by the position option', (t)
     });
 });
 
-test('LogoControl is not displayed when the mapbox_logo property is false', (t) => {
+test('LogoControl is not displayed when the maplibreLogo property is false', (t) => {
     const map = createMap(t, 'top-left', false);
     map.on('load', () => {
         t.equal(map.getContainer().querySelectorAll('.maplibregl-ctrl-top-left > .maplibregl-ctrl')[0].style.display, 'none');

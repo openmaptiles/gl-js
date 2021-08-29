@@ -1,7 +1,7 @@
 import fs from 'fs';
 import sourcemaps from 'rollup-plugin-sourcemaps';
-import {plugins} from './build/rollup_plugins';
-import banner from './build/banner';
+import {plugins} from './build/rollup_plugins.js';
+import banner from './build/banner.js';
 
 const {BUILD, MINIFY} = process.env;
 const minified = MINIFY === 'true';
@@ -11,15 +11,15 @@ const outputFile =
     minified ? 'dist/maplibre-gl.js' : 'dist/maplibre-gl-unminified.js';
 
 export default [{
-    // First, use code splitting to bundle GL JS into three "chunks":
-    // - rollup/build/index.js: the main module, plus all its dependencies not shared by the worker module
-    // - rollup/build/worker.js: the worker module, plus all dependencies not shared by the main module
-    // - rollup/build/shared.js: the set of modules that are dependencies of both the main module and the worker module
+    // Before rollup you should run build-tsc to transpile from typescript to javascript
+    // and to copy the shaders and convert them to js strings
+    // Rollup will use code splitting to bundle GL JS into three "chunks":
+    // - rollup/build/maplibregl/index.js: the main module, plus all its dependencies not shared by the worker module
+    // - rollup/build/maplibregl/worker.js: the worker module, plus all dependencies not shared by the main module
+    // - rollup/build/maplibregl/shared.js: the set of modules that are dependencies of both the main module and the worker module
     //
-    // This is also where we do all of our source transformations: removing
-    // flow annotations, transpiling ES6 features using buble, inlining shader
-    // sources as strings, etc.
-    input: ['src/index.js', 'src/source/worker.js'],
+    // This is also where we do all of our source transformations using the plugins.
+    input: ['rollup/build/tsc/index.js', 'rollup/build/tsc/source/worker.js'],
     output: {
         dir: 'rollup/build/maplibregl',
         format: 'amd',
@@ -40,7 +40,7 @@ export default [{
         format: 'umd',
         sourcemap: production ? true : 'inline',
         indent: false,
-        intro: fs.readFileSync(require.resolve('./rollup/bundle_prelude.js'), 'utf8'),
+        intro: fs.readFileSync('./rollup/bundle_prelude.js', 'utf8'),
         banner
     },
     treeshake: false,

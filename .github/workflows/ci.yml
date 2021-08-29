@@ -6,7 +6,6 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
 
 jobs:
   lint_build_test:
@@ -17,7 +16,7 @@ jobs:
           - macos-latest
           - windows-latest
         node_version:
-          - 10
+          - 14
         architecture:
           - x64
 
@@ -31,66 +30,55 @@ jobs:
         with:
           node-version: ${{ matrix.node_version }}
           architecture: ${{ matrix.architecture }}
-      - run: yarn install --frozen-lockfile
+      - run: npm ci
 
-      - run: yarn run lint
-      - run: yarn run build-dev
-      - run: yarn test-unit
+      - run: npm run lint
+      - run: npm run build-dev
+      - run: npm run test-unit
 
   lint:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js 10 x64
+      - name: Use Node.js 14 x64
         uses: actions/setup-node@v2-beta
         with:
-          node-version: 10
+          node-version: 14
           architecture: x64
-      - run: yarn install --frozen-lockfile
-      - run: yarn run lint
-      - run: yarn run lint-docs
-      - run: yarn run lint-css
-
-  test-flow:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js 10 x64
-        uses: actions/setup-node@v2-beta
-        with:
-          node-version: 10
-          architecture: x64
-      - run: yarn install --frozen-lockfile
-      - run: yarn run test-flow
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run lint-docs
+      - run: npm run lint-css
 
   test-unit:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js 10 x64
+      - name: Use Node.js 14 x64
         uses: actions/setup-node@v2-beta
         with:
-          node-version: 10
+          node-version: 14
           architecture: x64
-      - run: yarn install --frozen-lockfile
+      - run: npm ci
+      - run: npm run build-dev
       # see: https://github.com/stackgl/headless-gl#how-can-headless-gl-be-used-on-a-headless-linux-machine
-      - run: xvfb-run -s "-ac -screen 0 1280x1024x24" yarn run test-unit
+      - run: xvfb-run -s "-ac -screen 0 1280x1024x24" npm run test-unit
 
   test-query:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js 10 x64
+      - name: Use Node.js 14 x64
         uses: actions/setup-node@v2-beta
         with:
-          node-version: 10
+          node-version: 14
           architecture: x64
-      - run: yarn install --frozen-lockfile
-      - run: yarn run test-query
+      - run: npm ci
+      - run: npm run build-dev
+      - run: npm run test-query
       - uses: actions/upload-artifact@v2
         with:
           path: ./test/integration/query-tests
@@ -105,13 +93,14 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js 10 x64
+      - name: Use Node.js 14 x64
         uses: actions/setup-node@v2-beta
         with:
-          node-version: 10
+          node-version: 14
           architecture: x64
-      - run: yarn install --frozen-lockfile
-      - run: yarn run test-expressions
+      - run: npm ci
+      - run: npm run build-dev
+      - run: npm run test-expressions
 
   test-browser:
     timeout-minutes: 20
@@ -120,25 +109,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js 10 x64
+      - name: Use Node.js 14 x64
         uses: actions/setup-node@v2-beta
         with:
-          node-version: 10
+          node-version: 14
           architecture: x64
-      - run: yarn install --frozen-lockfile
-      - run: yarn run build-dev
-      - run: DETECT_CHROMEDRIVER_VERSION=true yarn global add chromedriver
-      - run: yarn global add geckodriver@^1.22.3
+      - run: npm ci
+      - run: npm run build-dev
+      - run: DETECT_CHROMEDRIVER_VERSION=true npm install -g chromedriver
+      - run: npm install -g geckodriver@^1.22.3
       - name: Test Chrome
         env:
           SELENIUM_BROWSER: chrome
           TAP_COLORS: 1
-        run: xvfb-run -s "-ac -screen 0 1280x1024x24" yarn run test-browser
+        run: xvfb-run -s "-ac -screen 0 1280x1024x24" npm run test-browser
       - name: Test Firefox
         env:
           SELENIUM_BROWSER: firefox
           TAP_COLORS: 1
-        run: xvfb-run -s "-ac -screen 0 1280x1024x24" yarn run test-browser
+        run: xvfb-run -s "-ac -screen 0 1280x1024x24" npm run test-browser
 
   # TODO need a data provider for these:
   # collect-stats:
@@ -146,12 +135,12 @@ jobs:
   #   needs: [build]
   #   steps:
   #     - uses: actions/checkout@v2
-  #     - name: Use Node.js 10 x64
+  #     - name: Use Node.js 14 x64
   #       uses: actions/setup-node@v2-beta
   #       with:
-  #         node-version: 10
+  #         node-version: 14
   #         architecture: x64
-  #     - run: yarn install --frozen-lockfile
+  #     - run: npm ci
   #     - uses: actions/download-artifact@v2
   #       with:
   #         name: dist
@@ -166,13 +155,13 @@ jobs:
   # test-render:
   #   runs-on: ubuntu-latest
   #   steps:
-  # - name: Use Node.js 10 x64
+  # - name: Use Node.js 14 x64
   #   uses: actions/setup-node@v2-beta
   #   with:
-  #     node-version: 10
+  #     node-version: 14
   #     architecture: x64
-  # - run: yarn install --frozen-lockfile
-  #     - run: yarn run test-render
+  # - run: npm ci
+  #     - run: npm run test-render
   #     - uses: actions/upload-artifact@v2
   #       with:
   #         path: test/integration/render-tests/index.html

@@ -117,7 +117,7 @@ map.on('load', () => {
         });
     });
 
-    map.on('mouseleave', 'cluster', (e) => {
+    map.on('mouseleave', 'cluster', (_) => {
         map.getCanvas().style.cursor = '';
         updateHover([]);
     });

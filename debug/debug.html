@@ -112,7 +112,7 @@ map.on('load', function() {
     map.on('mouseenter', 'marker', function(e) {
         map.setFilter('marker-hover', ['==', 'name', e.features[0].properties.name]);
     });
-    map.on('mouseleave', 'marker', function(e) {
+    map.on('mouseleave', 'marker', function(_) {
         map.setFilter('marker-hover', ['==', 'name', '']);
     });
 

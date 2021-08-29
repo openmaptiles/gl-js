@@ -1,5 +1,5 @@
 import {test} from '../../util/test';
-import {CanonicalTileID, OverscaledTileID} from '../../../src/source/tile_id';
+import {CanonicalTileID, OverscaledTileID} from '../../../rollup/build/tsc/source/tile_id';
 
 test('CanonicalTileID', (t) => {
     t.test('#constructor', (t) => {
@@ -49,7 +49,7 @@ test('CanonicalTileID', (t) => {
             t.equal(new CanonicalTileID(17, 22914, 52870).url(['quadkey={quadkey}']), 'quadkey=02301322130000230');
 
             // Test case confirmed by quadkeytools package
-            // https://bitbucket.org/steele/quadkeytools/src/master/test/quadkey.js?fileviewer=file-view-default#quadkey.js-57
+            // https://bitbucket.org/steele/quadkeytools/rollup/build/tsc/master/test/quadkey.js?fileviewer=file-view-default#quadkey.js-57
             t.equal(new CanonicalTileID(6, 29, 3).url(['quadkey={quadkey}']), 'quadkey=011123');
 
             t.end();

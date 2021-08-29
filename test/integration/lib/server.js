@@ -1,11 +1,15 @@
-/* eslint-disable import/no-commonjs */
-const path = require('path');
-const fs = require('fs');
-const st = require('st');
-const {createServer} = require('http');
-const localizeURLs = require('./localize-urls');
+import path, {dirname} from 'path';
+import fs from 'fs';
+import st from 'st';
+import {createServer} from 'http';
+import localizeURLs from './localize-urls.js';
+import {fileURLToPath} from 'url';
+import {createRequire} from 'module';
 
-module.exports = function () {
+const require = createRequire(import.meta.url);
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+export default function () {
     const port = 2900;
     const integrationMount = st({path: path.join(__dirname, '..')});
     const mapboxGLStylesMount = st({path: path.dirname(require.resolve('mapbox-gl-styles')), url: 'mapbox-gl-styles'});
@@ -47,4 +51,4 @@ module.exports = function () {
             return localizeURLs(style, port);
         }
     };
-};
+}

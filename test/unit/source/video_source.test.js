@@ -1,7 +1,7 @@
+import '../../stub_loader';
 import {test} from '../../util/test';
-import VideoSource from '../../../src/source/video_source';
-import {extend} from '../../../src/util/util';
-import window from '../../../src/util/window';
+import VideoSource from '../../../rollup/build/tsc/source/video_source';
+import {extend} from '../../../rollup/build/tsc/util/util';
 
 function createSource(options) {
 

@@ -1,5 +1,5 @@
 import {test} from '../../util/test';
-import LngLat from '../../../src/geo/lng_lat';
+import LngLat from '../../../rollup/build/tsc/geo/lng_lat';
 
 test('LngLat', (t) => {
     t.test('#constructor', (t) => {

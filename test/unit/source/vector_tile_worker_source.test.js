@@ -1,15 +1,18 @@
+import '../../stub_loader';
 import fs from 'fs';
-import path from 'path';
+import path, {dirname} from 'path';
 import vt from '@mapbox/vector-tile';
 import Protobuf from 'pbf';
 import {test} from '../../util/test';
-import VectorTileWorkerSource from '../../../src/source/vector_tile_worker_source';
-import StyleLayerIndex from '../../../src/style/style_layer_index';
-import perf from '../../../src/util/performance';
+import VectorTileWorkerSource from '../../../rollup/build/tsc/source/vector_tile_worker_source';
+import StyleLayerIndex from '../../../rollup/build/tsc/style/style_layer_index';
+import perf from '../../../rollup/build/tsc/util/performance';
+import {fileURLToPath} from 'url';
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const actor = {send: () => {}};
-
 test('VectorTileWorkerSource#abortTile aborts pending request', (t) => {
+    window.useFakeXMLHttpRequest();
     const source = new VectorTileWorkerSource(actor, new StyleLayerIndex(), []);
 
     source.loadTile({
@@ -31,6 +34,7 @@ test('VectorTileWorkerSource#abortTile aborts pending request', (t) => {
     });
 
     t.deepEqual(source.loading, {});
+    window.clearFakeXMLHttpRequest();
     t.end();
 });
 
@@ -286,3 +290,4 @@ test('VectorTileWorkerSource provides resource timing information (fallback meth
         t.end();
     });
 });
+

@@ -1,6 +1,6 @@
 import {test} from '../../util/test';
-import LngLat from '../../../src/geo/lng_lat';
-import MercatorCoordinate, {mercatorScale} from '../../../src/geo/mercator_coordinate';
+import LngLat from '../../../rollup/build/tsc/geo/lng_lat';
+import MercatorCoordinate, {mercatorScale} from '../../../rollup/build/tsc/geo/mercator_coordinate';
 
 test('LngLat', (t) => {
     t.test('#constructor', (t) => {

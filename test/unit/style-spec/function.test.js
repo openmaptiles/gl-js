@@ -1,7 +1,7 @@
 import {test} from '../../util/test';
-import {createFunction} from '../../../src/style-spec/function';
-import Color from '../../../src/style-spec/util/color';
-import Formatted from '../../../src/style-spec/expression/types/formatted';
+import {createFunction} from '../../../rollup/build/tsc/style-spec/function';
+import Color from '../../../rollup/build/tsc/style-spec/util/color';
+import Formatted from '../../../rollup/build/tsc/style-spec/expression/types/formatted';
 import {equalWithPrecision} from '../../util';
 
 test('binary search', (t) => {

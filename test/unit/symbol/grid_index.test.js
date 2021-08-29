@@ -1,5 +1,5 @@
 import {test} from '../../util/test';
-import GridIndex from '../../../src/symbol/grid_index';
+import GridIndex from '../../../rollup/build/tsc/symbol/grid_index';
 
 test('GridIndex', (t) => {
 

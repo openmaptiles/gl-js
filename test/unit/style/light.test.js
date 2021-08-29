@@ -1,8 +1,9 @@
+import '../../stub_loader';
 import {test} from '../../util/test';
-import Light from '../../../src/style/light';
-import styleSpec from '../../../src/style-spec/reference/latest';
-import Color from '../../../src/style-spec/util/color';
-import {sphericalToCartesian} from '../../../src/util/util';
+import Light from '../../../rollup/build/tsc/style/light';
+import styleSpec from '../../../rollup/build/tsc/style-spec/reference/latest';
+import Color from '../../../rollup/build/tsc/style-spec/util/color';
+import {sphericalToCartesian} from '../../../rollup/build/tsc/util/util';
 
 const spec = styleSpec.light;
 

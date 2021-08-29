@@ -1,7 +1,8 @@
 import {test} from '../../util/test';
-import {createPropertyExpression} from '../../../src/style-spec/expression';
-import definitions from '../../../src/style-spec/expression/definitions';
-import v8 from '../../../src/style-spec/reference/v8';
+import {createPropertyExpression} from '../../../rollup/build/tsc/style-spec/expression';
+import definitions from '../../../rollup/build/tsc/style-spec/expression/definitions';
+/* eslint-disable import/no-unresolved */
+import v8 from '../../../rollup/build/tsc/style-spec/reference/v8';
 
 // filter out interal "error" and "filter-*" expressions from definition list
 const filterExpressionRegex = /filter-/;

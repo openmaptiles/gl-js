@@ -18,12 +18,12 @@ jobs:
       # report status back to pull request
       - uses: haya14busa/action-workflow_run-status@v1
       - uses: actions/checkout@v2
-      - name: Use Node.js 10 x64
+      - name: Use Node.js 14 x64
         uses: actions/setup-node@v2-beta
         with:
-          node-version: 10
+          node-version: 14
           architecture: x64
-      - run: yarn install --frozen-lockfile
+      - run: npm ci
       - name: Download branch artifact
         uses: dawidd6/action-download-artifact@v2
         with:

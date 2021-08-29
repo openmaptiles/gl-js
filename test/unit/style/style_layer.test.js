@@ -1,8 +1,9 @@
+import '../../stub_loader';
 import {test} from '../../util/test';
-import createStyleLayer from '../../../src/style/create_style_layer';
-import FillStyleLayer from '../../../src/style/style_layer/fill_style_layer';
-import {extend} from '../../../src/util/util';
-import Color from '../../../src/style-spec/util/color';
+import createStyleLayer from '../../../rollup/build/tsc/style/create_style_layer';
+import FillStyleLayer from '../../../rollup/build/tsc/style/style_layer/fill_style_layer';
+import {extend} from '../../../rollup/build/tsc/util/util';
+import Color from '../../../rollup/build/tsc/style-spec/util/color';
 
 test('StyleLayer', (t) => {
     t.test('instantiates the correct subclass', (t) => {

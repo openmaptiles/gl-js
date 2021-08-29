@@ -3,30 +3,8 @@
 import tap from 'tap';
 import sinon from 'sinon';
 
-type CreateTest = (typeof sinon) & {
-    (name: string, body: (test: CreateTest) => void): void,
-
-    test: CreateTest,
-
-    ok(value: mixed, msg?: string): void,
-    assert(value: mixed, msg?: string): void,
-    true(value: mixed, msg?: string): void,
-    notOk(value: mixed, msg?: string): void,
-    false(value: mixed, msg?: string): void,
-    equal(actual: mixed, expected: mixed, msg?: string): void,
-    notEqual(actual: mixed, expected: mixed, msg?: string): void,
-    deepEqual(actual: mixed, expected: mixed, msg?: string): void,
-    fail(msg?: string): void,
-    ifError(err: mixed, msg?: string): void,
-    throws(fn: Function, expected?: RegExp | Function, msg?: string): void,
-    doesNotThrow(fn: Function, expected?: RegExp | Function, msg?: string): void,
-    plan(n: number): void,
-    end(): void,
-    tearDown(() => void): void,
-};
-
-export const test = (tap.test: CreateTest);
-export const only = (tap.only: CreateTest);
+export const test = tap.test;
+export const only = tap.only;
 
 const consoleError = console.error;
 const consoleWarn = console.warn;

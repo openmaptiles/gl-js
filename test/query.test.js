@@ -1,14 +1,14 @@
 /* eslint-disable import/unambiguous, import/no-commonjs, no-global-assign */
 
-require('./stub_loader');
-require('@mapbox/flow-remove-types/register');
-require = require("esm")(module, true);
-
-const querySuite = require('./integration/lib/query');
-const suiteImplementation = require('./suite_implementation');
-const ignores = require('./ignores.json');
+import './stub_loader';
+import * as querySuite from './integration/lib/query';
+import suiteImplementation from './suite_implementation';
+import ignores from './ignores.json';
+import {fileURLToPath} from 'url';
 
 let tests;
+
+const __filename = fileURLToPath(import.meta.url);
 
 if (process.argv[1] === __filename && process.argv.length > 2) {
     tests = process.argv.slice(2);

@@ -1,18 +1,21 @@
+import '../../stub_loader';
 import {test} from '../../util/test';
 import fs from 'fs';
-import path from 'path';
+import path, {dirname} from 'path';
 import Protobuf from 'pbf';
 import {VectorTile} from '@mapbox/vector-tile';
-import SymbolBucket from '../../../src/data/bucket/symbol_bucket';
-import {CollisionBoxArray} from '../../../src/data/array_types';
-import {performSymbolLayout} from '../../../src/symbol/symbol_layout';
-import {Placement} from '../../../src/symbol/placement';
-import Transform from '../../../src/geo/transform';
-import {OverscaledTileID} from '../../../src/source/tile_id';
-import Tile from '../../../src/source/tile';
-import CrossTileSymbolIndex from '../../../src/symbol/cross_tile_symbol_index';
-import FeatureIndex from '../../../src/data/feature_index';
+import SymbolBucket from '../../../rollup/build/tsc/data/bucket/symbol_bucket';
+import {CollisionBoxArray} from '../../../rollup/build/tsc/data/array_types';
+import {performSymbolLayout} from '../../../rollup/build/tsc/symbol/symbol_layout';
+import {Placement} from '../../../rollup/build/tsc/symbol/placement';
+import Transform from '../../../rollup/build/tsc/geo/transform';
+import {OverscaledTileID} from '../../../rollup/build/tsc/source/tile_id';
+import Tile from '../../../rollup/build/tsc/source/tile';
+import CrossTileSymbolIndex from '../../../rollup/build/tsc/symbol/cross_tile_symbol_index';
+import FeatureIndex from '../../../rollup/build/tsc/data/feature_index';
 import {createSymbolBucket} from '../../util/create_symbol_layer';
+import {fileURLToPath} from 'url';
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Load a point feature from fixture tile.
 const vt = new VectorTile(new Protobuf(fs.readFileSync(path.join(__dirname, '/../../fixtures/mbsv5-6-18-23.vector.pbf'))));

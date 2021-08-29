@@ -1,6 +1,6 @@
 import {test} from '../../../util/test';
-import * as colorSpaces from '../../../../src/style-spec/util/color_spaces';
-import Color from '../../../../src/style-spec/util/color';
+import * as colorSpaces from '../../../../rollup/build/tsc/style-spec/util/color_spaces';
+import Color from '../../../../rollup/build/tsc/style-spec/util/color';
 
 test('#hclToRgb zero', (t) => {
     const hclColor = {h: 0, c: 0, l: 0, alpha: null};

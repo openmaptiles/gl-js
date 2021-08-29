@@ -1,8 +1,8 @@
 import {test} from '../../util/test';
-import Point from '@mapbox/point-geometry';
-import Transform from '../../../src/geo/transform';
-import LngLat from '../../../src/geo/lng_lat';
-import {OverscaledTileID, CanonicalTileID} from '../../../src/source/tile_id';
+import Point from '../../../rollup/build/tsc/symbol/point';
+import Transform from '../../../rollup/build/tsc/geo/transform';
+import LngLat from '../../../rollup/build/tsc/geo/lng_lat';
+import {OverscaledTileID, CanonicalTileID} from '../../../rollup/build/tsc/source/tile_id';
 import {fixedLngLat, fixedCoord} from '../../util/fixed';
 
 test('transform', (t) => {

@@ -15,10 +15,6 @@
   "main": "./dist/index.js",
   "module": "./dist/index.es.js",
   "scripts": {
-    "copy-flow-typed": "cp -R ../../flow-typed .",
-    "build": "../../node_modules/.bin/rollup -c && ../../node_modules/.bin/rollup -c --environment esm",
-    "prepublish": "git clean -fdx && yarn copy-flow-typed && yarn build",
-    "postpublish": "rm -r flow-typed dist/index.js"
   },
   "repository": {
     "type": "git",
@@ -33,7 +29,6 @@
   "dependencies": {
     "@mapbox/jsonlint-lines-primitives": "~2.0.2",
     "@mapbox/unitbezier": "^0.0.0",
-    "@mapbox/point-geometry": "^0.1.0",
     "csscolorparser": "~1.0.2",
     "json-stringify-pretty-compact": "^2.0.0",
     "minimist": "^1.2.5",

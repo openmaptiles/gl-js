@@ -1,22 +1,22 @@
+import '../../stub_loader';
 import {test} from '../../util/test';
-import {cacheGet, cachePut, cacheClose} from '../../../src/util/tile_request_cache';
-import window from '../../../src/util/window';
+import {cacheGet, cachePut, cacheClose} from '../../../rollup/build/tsc/util/tile_request_cache';
 import sinon from 'sinon';
 
 test('tile_request_cache', (t) => {
     t.beforeEach(callback => {
         cacheClose();
-        window.caches = sinon.stub();
+        global.caches = sinon.stub();
         callback();
     });
 
     t.afterEach(callback => {
-        window.restore();
+        delete global.caches;
         callback();
     });
 
-    t.test('cachePut, no window.caches', (t) => {
-        delete window.caches;
+    t.test('cachePut, no caches', (t) => {
+        delete global.caches;
 
         let result;
         try {
@@ -29,8 +29,8 @@ test('tile_request_cache', (t) => {
         t.end();
     });
 
-    t.test('cacheGet, no window.caches', (t) => {
-        delete window.caches;
+    t.test('cacheGet, no caches', (t) => {
+        delete global.caches;
 
         cacheGet({url:''}, (result) => {
             t.ifError(result, 'should not result in error');
@@ -40,7 +40,7 @@ test('tile_request_cache', (t) => {
     });
 
     t.test('cacheGet, cache open error', (t) => {
-        window.caches.open = sinon.stub().rejects(new Error('The operation is insecure'));
+        global.caches.open = sinon.stub().rejects(new Error('The operation is insecure'));
 
         cacheGet({url:''}, (error) => {
             t.ok(error, 'should result in error');
@@ -52,7 +52,7 @@ test('tile_request_cache', (t) => {
     t.test('cacheGet, cache match error', (t) => {
         const fakeCache = sinon.stub();
         fakeCache.match = sinon.stub().withArgs('someurl').rejects(new Error('ohno'));
-        window.caches.open = sinon.stub().resolves(fakeCache);
+        global.caches.open = sinon.stub().resolves(fakeCache);
 
         cacheGet({url:'someurl'}, (error) => {
             t.ok(error, 'should result in error');
@@ -76,7 +76,7 @@ test('tile_request_cache', (t) => {
         fakeCache.delete = sinon.stub();
         fakeCache.put = sinon.stub();
 
-        window.caches.open = sinon.stub().resolves(fakeCache);
+        global.caches.open = sinon.stub().resolves(fakeCache);
 
         cacheGet({url:'someurl'}, (error, response, fresh) => {
             t.ifError(error, 'should not result in error');

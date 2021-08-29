@@ -1,6 +1,6 @@
-import window from '../../src/util/window';
-import Map from '../../src/ui/map';
-import {extend} from '../../src/util/util';
+import '../stub_loader';
+import Map from '../../rollup/build/tsc/ui/map';
+import {extend} from '../../rollup/build/tsc/util/util';
 
 export function createMap(t, options, callback) {
     const container = window.document.createElement('div');

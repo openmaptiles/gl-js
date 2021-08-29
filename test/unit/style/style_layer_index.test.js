@@ -1,6 +1,7 @@
+import '../../stub_loader';
 import {test} from '../../util/test';
-import {mapObject} from '../../../src/util/util';
-import StyleLayerIndex from '../../../src/style/style_layer_index';
+import {mapObject} from '../../../rollup/build/tsc/util/util';
+import StyleLayerIndex from '../../../rollup/build/tsc/style/style_layer_index';
 
 test('StyleLayerIndex#replace', (t) => {
     const index = new StyleLayerIndex([

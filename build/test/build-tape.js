@@ -1,11 +1,9 @@
-/* eslint-disable import/no-commonjs */
-/* eslint-disable flowtype/require-valid-file-annotation */
-const browserify = require('browserify');
-const fs = require('fs');
+import browserify from 'browserify';
+import fs from 'fs';
 
-module.exports = function() {
+export default function() {
     return new Promise((resolve, reject) => {
-        browserify(require.resolve('../../test/util/tape_config.js'), { standalone: 'tape' })
+        browserify('./test/util/tape_config.js', { standalone: 'tape' })
             .transform("babelify", {presets: ["@babel/preset-env"], global: true})
             .bundle((err, buff) => {
                 if (err) { throw err; }
@@ -16,4 +14,4 @@ module.exports = function() {
                 });
             });
     });
-};
+}

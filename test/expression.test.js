@@ -1,11 +1,13 @@
+import {fileURLToPath} from 'url';
+
 import {run} from './integration/lib/expression';
-import {createPropertyExpression} from '../src/style-spec/expression';
-import {isFunction} from '../src/style-spec/function';
-import convertFunction from '../src/style-spec/function/convert';
-import {toString} from '../src/style-spec/expression/types';
+import {createPropertyExpression} from '../rollup/build/tsc/style-spec/expression';
+import {isFunction} from '../rollup/build/tsc/style-spec/function';
+import convertFunction from '../rollup/build/tsc/style-spec/function/convert';
+import {toString} from '../rollup/build/tsc/style-spec/expression/types';
 import ignores from './ignores.json';
-import {CanonicalTileID} from '../src/source/tile_id';
-import MercatorCoordinate from '../src/geo/mercator_coordinate';
+import {CanonicalTileID} from '../rollup/build/tsc/source/tile_id';
+import MercatorCoordinate from '../rollup/build/tsc/geo/mercator_coordinate';
 
 function getPoint(coord, canonical) {
     const p = canonical.getTilePoint(MercatorCoordinate.fromLngLat({lng: coord[0], lat: coord[1]}, 0));
@@ -68,6 +70,8 @@ function getGeometry(feature, geometry, canonical) {
 }
 
 let tests;
+
+const __filename = fileURLToPath(import.meta.url);
 
 if (process.argv[1] === __filename && process.argv.length > 2) {
     tests = process.argv.slice(2);

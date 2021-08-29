@@ -1,7 +1,8 @@
+import '../../stub_loader';
 import {test} from '../../util/test';
-import SymbolStyleLayer from '../../../src/style/style_layer/symbol_style_layer';
-import FormatSectionOverride from '../../../src/style/format_section_override';
-import properties from '../../../src/style/style_layer/symbol_style_layer_properties';
+import SymbolStyleLayer from '../../../rollup/build/tsc/style/style_layer/symbol_style_layer';
+import FormatSectionOverride from '../../../rollup/build/tsc/style/format_section_override';
+import properties from '../../../rollup/build/tsc/style/style_layer/symbol_style_layer_properties';
 
 function createSymbolLayer(layerProperties) {
     const layer = new SymbolStyleLayer(layerProperties);

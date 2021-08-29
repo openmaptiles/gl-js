@@ -1,5 +1,5 @@
 import {test} from '../../util/test';
-import {Event, Evented} from '../../../src/util/evented';
+import {Event, Evented} from '../../../rollup/build/tsc/util/evented';
 
 test('Evented', (t) => {
 

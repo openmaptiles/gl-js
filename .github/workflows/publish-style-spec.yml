@@ -12,26 +12,25 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Use Node.js 10 x64
+      - name: Use Node.js 14 x64
         uses: actions/setup-node@v2
         with:
-          node-version: 10
+          node-version: 14
           architecture: x64
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install GL JS
-        run: yarn install --frozen-lockfile
+        run: npm ci
       
       - name: Build GL JS
         run: |
-          yarn run build-prod-min
-          yarn run build-css
+          npm run build-prod-min
+          npm run build-css
       
       - name: Build style spec
         run: |
-          cd src/style-spec
-          yarn install
-          yarn run prepublish
+          npm run build-style-spec
+          cp dist/style-spec/ src/style-spec/dist
       
       - name: Check version and publish
         run: |

@@ -1,5 +1,5 @@
 import {test} from '../../util/test';
-import composite from '../../../src/style-spec/composite';
+import composite from '../../../rollup/build/tsc/style-spec/composite';
 
 test('composites Mapbox vector sources', (t) => {
     const result = composite({

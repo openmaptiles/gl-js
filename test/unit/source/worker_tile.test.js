@@ -1,8 +1,9 @@
+import '../../stub_loader';
 import {test} from '../../util/test';
-import WorkerTile from '../../../src/source/worker_tile';
-import Wrapper from '../../../src/source/geojson_wrapper';
-import {OverscaledTileID} from '../../../src/source/tile_id';
-import StyleLayerIndex from '../../../src/style/style_layer_index';
+import WorkerTile from '../../../rollup/build/tsc/source/worker_tile';
+import Wrapper from '../../../rollup/build/tsc/source/geojson_wrapper';
+import {OverscaledTileID} from '../../../rollup/build/tsc/source/tile_id';
+import StyleLayerIndex from '../../../rollup/build/tsc/style/style_layer_index';
 
 function createWorkerTile() {
     return new WorkerTile({

@@ -1,9 +1,9 @@
+import '../../../stub_loader';
 import {test} from '../../../util/test';
-import window from '../../../../src/util/window';
-import Map from '../../../../src/ui/map';
-import DOM from '../../../../src/util/dom';
+import Map from '../../../../rollup/build/tsc/ui/map';
+import DOM from '../../../../rollup/build/tsc/util/dom';
 import simulate from '../../../util/simulate_interaction';
-import browser from '../../../../src/util/browser';
+import browser from '../../../../rollup/build/tsc/util/browser';
 
 function createMap() {
     return new Map({container: DOM.create('div', '', window.document.body)});

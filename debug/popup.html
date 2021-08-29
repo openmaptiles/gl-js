@@ -25,7 +25,7 @@ var map = window.map = new maplibregl.Map({
     hash: true
 });
 
-var popup = new maplibregl.Popup({closeButton: false, closeOnClick: false})
+new maplibregl.Popup({closeButton: false, closeOnClick: false})
     .trackPointer()
     .setHTML('<h1>Hello World!</h1>')
     .addTo(map);

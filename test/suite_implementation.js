@@ -1,19 +1,41 @@
 import {PNG} from 'pngjs';
-import Map from '../src/ui/map';
-import config from '../src/util/config';
-import window from '../src/util/window';
-import browser from '../src/util/browser';
-import {plugin as rtlTextPlugin} from '../src/source/rtl_text_plugin';
+import request from 'request';
+import maplibregl from '../rollup/build/tsc/index';
+import browser from '../rollup/build/tsc/util/browser';
+import * as rtlTextPluginModule from '../rollup/build/tsc/source/rtl_text_plugin';
 import rtlText from '@mapbox/mapbox-gl-rtl-text';
 import fs from 'fs';
-import path from 'path';
+import path, {dirname} from 'path';
 import customLayerImplementations from './integration/custom_layer_implementations';
+import {fileURLToPath} from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const {plugin: rtlTextPlugin} = rtlTextPluginModule;
 
 rtlTextPlugin['applyArabicShaping'] = rtlText.applyArabicShaping;
 rtlTextPlugin['processBidirectionalText'] = rtlText.processBidirectionalText;
 rtlTextPlugin['processStyledBidirectionalText'] = rtlText.processStyledBidirectionalText;
 
-module.exports = function(style, options, _callback) { // eslint-disable-line import/no-commonjs
+// replacing the browser method of get image in order to avoid usage of context and canvas 2d with Image object...
+browser.getImageData = function (img, padding = 0) {
+    if (!img.data) {
+        return {width: 1, height: 1, data: new Uint8Array(1)};
+    }
+    const width = img.width;
+    const height = img.height;
+    const data = img.data;
+    const source = new Uint8Array(data);
+    const dest = new Uint8Array((2 * padding + width) * (2 * padding + height) * 4);
+
+    const offset = (2 * padding + width) * padding + padding;
+    for (let i = 0; i < height; i++) {
+        dest.set(source.slice(i * width * 4, (i + 1) * width * 4), 4 * (offset + (width + 2 * padding) * i));
+    }
+    return {width: width + 2 * padding, height: height + 2 * padding, data: dest};
+};
+
+export default function(style, options, _callback) {
     let wasCallbackCalled = false;
 
     const timeout = setTimeout(() => {
@@ -29,6 +51,20 @@ module.exports = function(style, options, _callback) { // eslint-disable-line im
     }
 
     window.devicePixelRatio = options.pixelRatio;
+    window.useFakeXMLHttpRequest();
+    XMLHttpRequest.onCreate = req => {
+        setTimeout(() => {
+            let reqObj = req.url;
+            if (req.responseType === 'arraybuffer') {
+                reqObj = {url: req.url, encoding: null};
+            }
+            request(reqObj, (error, response, body) => {
+                req.setStatus(response.statusCode);
+                req.response = body;
+                req.onload();
+            });
+        }, 0);
+    };
 
     if (options.addFakeCanvas) {
         const fakeCanvas = createFakeCanvas(window.document, options.addFakeCanvas.id, options.addFakeCanvas.image);
@@ -39,10 +75,7 @@ module.exports = function(style, options, _callback) { // eslint-disable-line im
     Object.defineProperty(container, 'clientWidth', {value: options.width});
     Object.defineProperty(container, 'clientHeight', {value: options.height});
 
-    // We are self-hosting test files.
-    config.REQUIRE_ACCESS_TOKEN = false;
-
-    const map = new Map({
+    const map = new maplibregl.Map({
         container,
         style,
         classes: options.classes,
@@ -58,11 +91,6 @@ module.exports = function(style, options, _callback) { // eslint-disable-line im
 
     // Configure the map to never stop the render loop
     map.repaint = true;
-
-    let now = 0;
-    browser.now = function() {
-        return now;
-    };
 
     if (options.debug) map.showTileBoundaries = true;
     if (options.showOverdrawInspector) map.showOverdrawInspector = true;
@@ -183,7 +211,7 @@ module.exports = function(style, options, _callback) { // eslint-disable-line im
             applyOperations(map, operations.slice(1), callback);
         }
     }
-};
+}
 
 function createFakeCanvas(document, id, imagePath) {
     const fakeCanvas = document.createElement('canvas');
@@ -200,3 +228,4 @@ function updateFakeCanvas(document, id, imagePath) {
     const image = PNG.sync.read(fs.readFileSync(path.join(__dirname, './integration', imagePath)));
     fakeCanvas.data = image.data;
 }
+

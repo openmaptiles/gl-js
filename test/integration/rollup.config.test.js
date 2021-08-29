@@ -1,4 +1,4 @@
-import {plugins} from '../../build/rollup_plugins';
+import {plugins} from '../../build/rollup_plugins.js';
 
 export default {
     input: 'test/integration/lib/query-browser.js',

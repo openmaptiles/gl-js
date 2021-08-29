@@ -1,5 +1,5 @@
 import {test} from '../../util/test';
-import {Aabb, Frustum} from '../../../src/util/primitives';
+import {Aabb, Frustum} from '../../../rollup/build/tsc/util/primitives';
 import {mat4, vec3} from 'gl-matrix';
 
 test('primitives', (t) => {
@@ -50,6 +50,7 @@ test('primitives', (t) => {
         const createTestCameraFrustum = (fovy, aspectRatio, zNear, zFar, elevation, rotation) => {
             const proj = new Float64Array(16);
             const invProj = new Float64Array(16);
+
             // Note that left handed coordinate space is used where z goes towards the sky.
             // Y has to be flipped as well because it's part of the projection/camera matrix used in transform.js
             mat4.perspective(proj, fovy, aspectRatio, zNear, zFar);
@@ -92,7 +93,7 @@ test('primitives', (t) => {
         });
 
         t.test('No intersection between aabb and frustum', (t) => {
-            const frustum = createTestCameraFrustum(Math.PI / 2, 1.0, 0.1, 100.0, -5);
+            const frustum = createTestCameraFrustum(Math.PI / 2, 1.0, 0.1, 100.0, -5, 0);
 
             const aabbList = [
                 new Aabb(vec3.fromValues(-6, 0, 0), vec3.fromValues(-5.5, 0, 0)),
@@ -117,7 +118,6 @@ test('primitives', (t) => {
             mat4.invert(invProj, proj);
 
             const frustum = Frustum.fromInvProjectionMatrix(invProj, 1.0, 0.0);
-
             // mat4.perspective generates a projection matrix for right handed coordinate space.
             // This means that forward direction will be -z
             const expectedFrustumPoints = [
@@ -131,7 +131,6 @@ test('primitives', (t) => {
                 [-100.0, -100.0, -100.0, 1.0],
             ];
 
-            // Round numbers to mitigate the precision loss
             frustum.points = frustum.points.map(array => array.map(n => Math.round(n * 10) / 10));
             frustum.planes = frustum.planes.map(array => array.map(n => Math.round(n * 1000) / 1000));
 

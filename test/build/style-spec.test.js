@@ -1,38 +1,16 @@
-
-/* eslint-disable import/no-commonjs */
-
-const fs = require('fs');
-const path = require('path');
-const isBuiltin = require('is-builtin-module');
-
-const Linter = require('eslint').Linter;
-const rollup = require('rollup');
-
+import isBuiltin from 'is-builtin-module';
+import * as rollup from 'rollup';
 import {test} from '../util/test';
-import rollupConfig from '../../src/style-spec/rollup.config';
-
-// some paths
-const styleSpecDirectory = path.join(__dirname, '../../src/style-spec');
-const styleSpecPackage = require('../../src/style-spec/package.json');
-const styleSpecDistBundle = fs.readFileSync(path.join(__dirname, '../../dist/style-spec/index.js'), 'utf-8');
+import rollupConfig from '../../rollup.config.style-spec';
+import styleSpecPackage from '../../src/style-spec/package.json';
+/* eslint-disable import/namespace */
+import * as spec from '../../dist/style-spec/index.es.js';
 
 test('@mapbox/mapbox-gl-style-spec npm package', (t) => {
     t.test('build plain ES5 bundle in prepublish', (t) => {
-        const linter = new Linter();
-        const messages = linter.verify(styleSpecDistBundle, {
-            parserOptions: {
-                ecmaVersion: 5
-            },
-            rules: {},
-            env: {
-                node: true
-            }
-        }).map(message => `${message.line}:${message.column}: ${message.message}`);
-        t.deepEqual(messages, [], 'distributed bundle is plain ES5 code');
-
         t.stub(console, 'warn');
         rollup.rollup({
-            input: `${styleSpecDirectory}/style-spec.js`,
+            input: `./rollup/build/tsc/style-spec/style-spec.js`,
             plugins: [{
                 resolveId: (id, importer) => {
                     if (
@@ -55,9 +33,8 @@ test('@mapbox/mapbox-gl-style-spec npm package', (t) => {
     });
 
     t.test('exports components directly, not behind `default` - https://github.com/mapbox/mapbox-gl-js/issues/6601', (t) => {
-        const spec = require('../../dist/style-spec/index.js');
-        t.ok(spec.validate);
         t.notOk(spec.default && spec.default.validate);
+        t.ok(spec.validate);
         t.end();
     });
 

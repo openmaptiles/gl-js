@@ -1,24 +1,24 @@
-// @flow
-
+import '../../stub_loader';
 import {test} from '../../util/test';
 import fs from 'fs';
-import path from 'path';
-import window from '../../../src/util/window';
-import {RequestManager} from '../../../src/util/mapbox';
-import loadGlyphRange from '../../../src/style/load_glyph_range';
+import path, {dirname} from 'path';
+import {RequestManager} from '../../../rollup/build/tsc/util/mapbox';
+import loadGlyphRange from '../../../rollup/build/tsc/style/load_glyph_range';
+import {fileURLToPath} from 'url';
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 test('loadGlyphRange', (t) => {
     window.useFakeXMLHttpRequest();
 
     t.tearDown(() => {
-        window.restore();
+        window.clearFakeXMLHttpRequest();
     });
 
     const transform = t.stub().callsFake((url) => ({url}));
     const manager = new RequestManager(transform);
 
     let request;
-    window.XMLHttpRequest.onCreate = (req) => { request = req; };
+    XMLHttpRequest.onCreate = (req) => { request = req; };
 
     loadGlyphRange('Arial Unicode MS', 0, 'https://localhost/fonts/v1/{fontstack}/{range}.pbf', manager, (err, result) => {
         t.ifError(err);

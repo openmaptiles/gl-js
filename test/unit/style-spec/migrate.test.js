@@ -1,27 +1,29 @@
 import {test} from '../../util/test';
 import fs from 'fs';
 import glob from 'glob';
-import path from 'path';
-import validate from '../../../src/style-spec/validate_style';
-import v8 from '../../../src/style-spec/reference/v8';
-import migrate from '../../../src/style-spec/migrate';
-
+import path, {dirname} from 'path';
+import validate from '../../../rollup/build/tsc/style-spec/validate_style';
+/* eslint-disable import/no-unresolved */
+import v8 from '../../../rollup/build/tsc/style-spec/reference/v8';
+import migrate from '../../../rollup/build/tsc/style-spec/migrate';
+import {fileURLToPath} from 'url';
 /* eslint-disable import/namespace */
-import * as spec from '../../../src/style-spec/style-spec';
+import * as spec from '../../../rollup/build/tsc/style-spec/style-spec';
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const UPDATE = !!process.env.UPDATE;
 
 test('does not migrate from version 5', (t) => {
     t.throws(() => {
         migrate({version: 5, layers: []});
-    }, new Error('cannot migrate from', 5));
+    }, new Error('Cannot migrate from 5'));
     t.end();
 });
 
 test('does not migrate from version 6', (t) => {
     t.throws(() => {
         migrate({version: 6, layers: []});
-    }, new Error('cannot migrate from', 6));
+    }, new Error('Cannot migrate from 6'));
     t.end();
 });
 

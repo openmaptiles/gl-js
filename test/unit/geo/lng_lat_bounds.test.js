@@ -1,6 +1,6 @@
 import {test} from '../../util/test';
-import LngLat from '../../../src/geo/lng_lat';
-import LngLatBounds from '../../../src/geo/lng_lat_bounds';
+import LngLat from '../../../rollup/build/tsc/geo/lng_lat';
+import LngLatBounds from '../../../rollup/build/tsc/geo/lng_lat_bounds';
 
 test('LngLatBounds', (t) => {
     t.test('#constructor', (t) => {

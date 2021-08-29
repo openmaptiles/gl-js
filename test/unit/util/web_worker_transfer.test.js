@@ -1,15 +1,12 @@
-// @flow
-
+import '../../stub_loader';
 import {test} from '../../util/test';
-import {register, serialize, deserialize} from '../../../src/util/web_worker_transfer';
-
-import type {Serialized} from '../../../src/util/web_worker_transfer';
+import {register, serialize, deserialize} from '../../../rollup/build/tsc/util/web_worker_transfer';
 
 test('round trip', (t) => {
     class Foo {
-        n: number;
-        buffer: ArrayBuffer;
-        _cached: ?number;
+        n;
+        buffer;
+        _cached;
 
         constructor(n) {
             this.n = n;
@@ -32,7 +29,7 @@ test('round trip', (t) => {
     const transferables = [];
     const deserialized = deserialize(serialize(foo, transferables));
     t.assert(deserialized instanceof Foo);
-    const bar: Foo = (deserialized: any);
+    const bar = deserialized;
 
     t.assert(foo !== bar);
     t.assert(bar.constructor === Foo);
@@ -56,19 +53,19 @@ test('anonymous class', (t) => {
 
 test('custom serialization', (t) => {
     class Bar {
-        id: string;
-        _deserialized: boolean;
+        id;
+        _deserialized;
         constructor(id) {
             this.id = id;
             this._deserialized = false;
         }
 
-        static serialize(b: Bar): Serialized {
+        static serialize(b) {
             return {foo: `custom serialization,${b.id}`};
         }
 
-        static deserialize(input: Serialized): Bar {
-            const b = new Bar((input: any).foo.split(',')[1]);
+        static deserialize(input) {
+            const b = new Bar(input.foo.split(',')[1]);
             b._deserialized = true;
             return b;
         }
@@ -81,7 +78,7 @@ test('custom serialization', (t) => {
 
     const deserialized = deserialize(serialize(bar));
     t.assert(deserialized instanceof Bar);
-    const bar2: Bar = (deserialized: any);
+    const bar2 = deserialized;
     t.equal(bar2.id, bar.id);
     t.assert(bar2._deserialized);
     t.end();

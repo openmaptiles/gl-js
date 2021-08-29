@@ -3,6 +3,18 @@
 ### Features and improvements
 
 - *...Add new stuff here...*
+### 🐞 Bug fixes
+
+- *...Add new stuff here...*
+
+## 2.0.0
+
+### Features and improvements
+
+- Migrated the production code to typescript
+- ** Breaking Change ** removed `version` from buplic API
+- ** Breaking Change ** stopped supporting IE (internet explorer)
+- *...Add new stuff here...*
 
 ### 🐞 Bug fixes
 

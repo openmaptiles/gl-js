@@ -1,13 +1,11 @@
-/* eslint-disable import/unambiguous, import/no-commonjs, no-global-assign */
+import './stub_loader';
+import canvas from 'canvas';
+import renderRunner from './integration/lib/render';
+import suiteImplementation from './suite_implementation';
+import ignores from './ignores.json';
 
-require('./stub_loader');
-require('@mapbox/flow-remove-types/register');
-const {registerFont} = require('canvas');
-require = require("esm")(module, true);
+const {registerFont} = canvas;
 
-const suite = require('./integration/lib/render');
-const suiteImplementation = require('./suite_implementation');
-const ignores = require('./ignores.json');
 registerFont('./node_modules/npm-font-open-sans/fonts/Bold/OpenSans-Bold.ttf', {family: 'Open Sans', weight: 'bold'});
 
-suite.run('js', ignores, suiteImplementation);
+renderRunner('js', ignores, suiteImplementation);

@@ -1,7 +1,8 @@
+import '../../stub_loader';
 import {test} from '../../util/test';
-import DEMData from '../../../src/data/dem_data';
-import {RGBAImage} from '../../../src/util/image';
-import {serialize, deserialize} from '../../../src/util/web_worker_transfer';
+import DEMData from '../../../rollup/build/tsc/data/dem_data';
+import {RGBAImage} from '../../../rollup/build/tsc/util/image';
+import {serialize, deserialize} from '../../../rollup/build/tsc/util/web_worker_transfer';
 
 function createMockImage(height, width) {
     // RGBAImage passed to constructor has uniform 1px padding on all sides.

@@ -1,14 +1,15 @@
+import '../../stub_loader';
 import {test} from '../../util/test';
-import SourceCache from '../../../src/source/source_cache';
-import {setType} from '../../../src/source/source';
-import Tile from '../../../src/source/tile';
-import {OverscaledTileID} from '../../../src/source/tile_id';
-import Transform from '../../../src/geo/transform';
-import LngLat from '../../../src/geo/lng_lat';
-import Point from '@mapbox/point-geometry';
-import {Event, ErrorEvent, Evented} from '../../../src/util/evented';
-import {extend} from '../../../src/util/util';
-import browser from '../../../src/util/browser';
+import SourceCache from '../../../rollup/build/tsc/source/source_cache';
+import {setType} from '../../../rollup/build/tsc/source/source';
+import Tile from '../../../rollup/build/tsc/source/tile';
+import {OverscaledTileID} from '../../../rollup/build/tsc/source/tile_id';
+import Transform from '../../../rollup/build/tsc/geo/transform';
+import LngLat from '../../../rollup/build/tsc/geo/lng_lat';
+import Point from '../../../rollup/build/tsc/symbol/point';
+import {Event, ErrorEvent, Evented} from '../../../rollup/build/tsc/util/evented';
+import {extend} from '../../../rollup/build/tsc/util/util';
+import browser from '../../../rollup/build/tsc/util/browser';
 
 // Add a mocked source type for use in these tests
 function MockSourceType(id, sourceOptions, _dispatcher, eventedParent) {

@@ -1,11 +1,10 @@
+import '../../stub_loader';
 import {test} from '../../util/test';
-import * as mapbox from '../../../src/util/mapbox';
-import config from '../../../src/util/config';
-import window from '../../../src/util/window';
-import webpSupported from '../../../src/util/webp_supported';
-import {uuid} from '../../../src/util/util';
-import {SKU_ID} from '../../../src/util/sku_token';
-import {version} from '../../../package.json';
+import * as mapbox from '../../../rollup/build/tsc/util/mapbox';
+import config from '../../../rollup/build/tsc/util/config';
+import webpSupported from '../../../rollup/build/tsc/util/webp_supported';
+import {uuid} from '../../../rollup/build/tsc/util/util';
+import {SKU_ID} from '../../../rollup/build/tsc/util/sku_token';
 import {equalWithPrecision} from '../../util';
 
 const mapboxTileURLs = [
@@ -327,14 +326,14 @@ test("mapbox", (t) => {
             });
 
             t.test('.normalizeTileURL inserts @2x on 2x devices', (t) => {
-                window.devicePixelRatio = 2;
+                global.devicePixelRatio = 2;
                 config.API_URL = 'http://path.png';
                 config.REQUIRE_ACCESS_TOKEN = false;
                 t.equal(manager.normalizeTileURL('mapbox://path.png/tile.png'), `http://path.png/v4/tile@2x.png`);
                 t.equal(manager.normalizeTileURL('mapbox://path.png/tile.png32'), `http://path.png/v4/tile@2x.png32`);
                 t.equal(manager.normalizeTileURL('mapbox://path.png/tile.jpg70'), `http://path.png/v4/tile@2x.jpg70`);
                 t.equal(manager.normalizeTileURL('mapbox://path.png/tile.png?access_token=foo'), `http://path.png/v4/tile@2x.png?access_token=foo`);
-                window.devicePixelRatio = 1;
+                global.devicePixelRatio = 1;
                 t.end();
             });
 
@@ -426,7 +425,7 @@ test("mapbox", (t) => {
         });
 
         t.afterEach((callback) => {
-            window.restore();
+            window.clearFakeXMLHttpRequest();
             callback();
         });
 
@@ -497,10 +496,10 @@ test("mapbox", (t) => {
                         this.data[id] = String(val);
                     },
                     getItem (id) {
-                        return this.data.hasOwnProperty(id) ? this.data[id] : undefined;
+                        return Object.prototype.hasOwnProperty.call(this.data, id) ? this.data[id] : undefined;
                     },
                     removeItem (id) {
-                        if (this.hasOwnProperty(id)) delete this[id];
+                        if (Object.prototype.hasOwnProperty.call(this, id)) delete this[id];
                     }
                 };
                 callback();
@@ -629,7 +628,6 @@ test("mapbox", (t) => {
                 t.equal(req.url, `${config.EVENTS_URL}?access_token=key`);
                 t.equal(req.method, 'POST');
                 t.equal(reqBody.event, 'appUserTurnstile');
-                t.equal(reqBody.sdkVersion, version);
                 t.equal(reqBody.skuId, SKU_ID);
                 t.ok(reqBody.userId);
 
@@ -688,7 +686,6 @@ test("mapbox", (t) => {
                 t.equal(req.url, `${config.EVENTS_URL}?access_token=pk.new.*`);
                 t.equal(req.method, 'POST');
                 t.equal(reqBody.event, 'appUserTurnstile');
-                t.equal(reqBody.sdkVersion, version);
                 t.equal(reqBody.skuId, SKU_ID);
                 t.ok(reqBody.userId);
 
@@ -711,7 +708,6 @@ test("mapbox", (t) => {
                 t.equal(req.url, `${config.EVENTS_URL}?access_token=key`);
                 t.equal(req.method, 'POST');
                 t.equal(reqBody.event, 'appUserTurnstile');
-                t.equal(reqBody.sdkVersion, version);
                 t.equal(reqBody.skuId, SKU_ID);
                 t.ok(reqBody.userId);
                 equalWithPrecision(t, new Date(reqBody.created).valueOf(), tomorrow, 100);
@@ -762,7 +758,7 @@ test("mapbox", (t) => {
         });
 
         t.afterEach((callback) => {
-            window.restore();
+            window.clearFakeXMLHttpRequest();
             callback();
         });
 
@@ -833,10 +829,10 @@ test("mapbox", (t) => {
                         this.data[id] = String(val);
                     },
                     getItem (id) {
-                        return this.data.hasOwnProperty(id) ? this.data[id] : undefined;
+                        return Object.prototype.hasOwnProperty.call(this.data, id) ? this.data[id] : undefined;
                     },
                     removeItem (id) {
-                        if (this.hasOwnProperty(id)) delete this[id];
+                        if (Object.prototype.hasOwnProperty.call(this, id)) delete this[id];
                     }
                 };
                 callback();
@@ -948,7 +944,6 @@ test("mapbox", (t) => {
                 t.equal(req.url, `${config.EVENTS_URL}?access_token=key`);
                 t.equal(req.method, 'POST');
                 t.equal(reqBody.event, 'map.load');
-                t.equal(reqBody.sdkVersion, version);
                 t.ok(reqBody.userId);
 
                 t.end();
@@ -982,7 +977,6 @@ test("mapbox", (t) => {
                 t.equal(req.url, `${config.EVENTS_URL}?access_token=pk.new.*`);
                 t.equal(req.method, 'POST');
                 t.equal(reqBody.event, 'map.load');
-                t.equal(reqBody.sdkVersion, version);
                 t.ok(reqBody.userId);
 
                 t.end();
@@ -1002,7 +996,6 @@ test("mapbox", (t) => {
                 t.equal(req.url, `${config.EVENTS_URL}?access_token=key`);
                 t.equal(req.method, 'POST');
                 t.equal(reqBody.event, 'map.load');
-                t.equal(reqBody.sdkVersion, version);
                 t.ok(reqBody.userId);
                 equalWithPrecision(t, new Date(reqBody.created).valueOf(), now, 100);
 

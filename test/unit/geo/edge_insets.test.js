@@ -1,5 +1,5 @@
 import {test} from '../../util/test';
-import EdgeInsets from '../../../src/geo/edge_insets';
+import EdgeInsets from '../../../rollup/build/tsc/geo/edge_insets';
 
 test('EdgeInsets', (t) => {
     t.test('#constructor', (t) => {

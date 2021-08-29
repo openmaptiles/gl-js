@@ -1,6 +1,6 @@
 import {test} from '../../util/test';
-import TileCache from '../../../src/source/tile_cache';
-import {OverscaledTileID} from '../../../src/source/tile_id';
+import TileCache from '../../../rollup/build/tsc/source/tile_cache';
+import {OverscaledTileID} from '../../../rollup/build/tsc/source/tile_id';
 
 const idA = new OverscaledTileID(10, 0, 10, 0, 1);
 const idB = new OverscaledTileID(10, 0, 10, 0, 2);

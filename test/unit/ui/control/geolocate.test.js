@@ -1,17 +1,10 @@
+import '../../../stub_loader';
+import geolocation from 'mock-geolocation';
 import {test} from '../../../util/test';
-import window from '../../../../src/util/window';
 import {createMap} from '../../../util';
-import GeolocateControl from '../../../../src/ui/control/geolocate_control';
+import GeolocateControl from '../../../../rollup/build/tsc/ui/control/geolocate_control';
 
-// window and navigator globals need to be set for mock-geolocation
-global.window = {};
-global.navigator = {};
-const geolocation = require('mock-geolocation'); // eslint-disable-line import/no-commonjs
 geolocation.use();
-
-// assign the mock geolocation to window
-global.window.navigator = global.navigator;
-window.navigator.geolocation = global.window.navigator.geolocation;
 
 // convert the coordinates of a LngLat object to a fixed number of digits
 function lngLatAsFixed(lngLat, digits) {

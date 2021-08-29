@@ -1,10 +1,11 @@
+import '../../stub_loader';
 import {test} from '../../util/test';
-import Actor from '../../../src/util/actor';
-import WebWorker from '../../../src/util/web_worker';
+import Actor from '../../../rollup/build/tsc/util/actor';
+import workerFactory from '../../../rollup/build/tsc/util/web_worker';
 
 test('Actor', (t) => {
     t.test('forwards resopnses to correct callback', (t) => {
-        t.stub(WebWorker, 'Worker').callsFake(function Worker(self) {
+        t.stub(workerFactory, 'Worker').callsFake(function Worker(self) {
             this.self = self;
             this.actor = new Actor(self, this);
             this.test = function (mapId, params, callback) {
@@ -12,7 +13,7 @@ test('Actor', (t) => {
             };
         });
 
-        const worker = new WebWorker();
+        const worker = workerFactory();
 
         const m1 = new Actor(worker, {}, 1);
         const m2 = new Actor(worker, {}, 2);
@@ -31,12 +32,12 @@ test('Actor', (t) => {
     t.test('targets worker-initiated messages to correct map instance', (t) => {
         let workerActor;
 
-        t.stub(WebWorker, 'Worker').callsFake(function Worker(self) {
+        t.stub(workerFactory, 'Worker').callsFake(function Worker(self) {
             this.self = self;
             this.actor = workerActor = new Actor(self, this);
         });
 
-        const worker = new WebWorker();
+        const worker = workerFactory();
 
         new Actor(worker, {
             test () { t.end(); }

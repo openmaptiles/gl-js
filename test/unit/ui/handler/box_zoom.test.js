@@ -1,7 +1,7 @@
+import '../../../stub_loader';
 import {test} from '../../../util/test';
-import window from '../../../../src/util/window';
-import Map from '../../../../src/ui/map';
-import DOM from '../../../../src/util/dom';
+import Map from '../../../../rollup/build/tsc/ui/map';
+import DOM from '../../../../rollup/build/tsc/util/dom';
 import simulate from '../../../util/simulate_interaction';
 
 function createMap(clickTolerance) {

@@ -1,6 +1,6 @@
 import {test} from '../../util/test';
-import Point from '@mapbox/point-geometry';
-import PathInterpolator from '../../../src/symbol/path_interpolator';
+import Point from '../../../rollup/build/tsc/symbol/point';
+import PathInterpolator from '../../../rollup/build/tsc/symbol/path_interpolator';
 
 test('PathInterpolator', (t) => {
 

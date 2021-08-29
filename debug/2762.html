@@ -46,7 +46,7 @@ var map = new maplibregl.Map({
     }
 });
 
-map.on('click', function(e) {
+map.on('click', function(_) {
     map.setPaintProperty("circle", "circle-color", "red");
     map.setPaintProperty("circle", "circle-translate", [50, 50]);
 });

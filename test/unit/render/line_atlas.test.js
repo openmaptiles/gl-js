@@ -1,5 +1,5 @@
 import {test} from '../../util/test';
-import LineAtlas from '../../../src/render/line_atlas';
+import LineAtlas from '../../../rollup/build/tsc/render/line_atlas';
 
 test('LineAtlas', (t) => {
     const lineAtlas = new LineAtlas(64, 64);

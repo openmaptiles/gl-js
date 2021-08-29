@@ -17,8 +17,9 @@
 <script src='../../../dist/maplibre-gl-dev.js'></script>
 
 <script>
-
-var map = window.map = new maplibregl.Map({
+// the following variable is important for the browser test to run properly
+/* eslint-disable @typescript-eslint/no-unused-vars */
+const map = window.map = new maplibregl.Map({
     container: 'map',
     zoom: 1,
     fadeDuration: 0,

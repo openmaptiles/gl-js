@@ -1,5 +1,5 @@
 import {test} from '../../util/test';
-import Wrapper from '../../../src/source/geojson_wrapper';
+import Wrapper from '../../../rollup/build/tsc/source/geojson_wrapper';
 
 test('geojsonwrapper', (t) => {
 

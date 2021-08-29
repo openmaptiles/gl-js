@@ -1,8 +1,8 @@
+import '../../stub_loader';
 import {test} from '../../util/test';
-import RasterDEMTileSource from '../../../src/source/raster_dem_tile_source';
-import window from '../../../src/util/window';
-import {OverscaledTileID} from '../../../src/source/tile_id';
-import {RequestManager} from '../../../src/util/mapbox';
+import RasterDEMTileSource from '../../../rollup/build/tsc/source/raster_dem_tile_source';
+import {OverscaledTileID} from '../../../rollup/build/tsc/source/tile_id';
+import {RequestManager} from '../../../rollup/build/tsc/util/mapbox';
 
 function createSource(options, transformCallback) {
     const source = new RasterDEMTileSource('id', options, {send() {}}, options.eventedParent);
@@ -26,7 +26,7 @@ test('RasterTileSource', (t) => {
     });
 
     t.afterEach((callback) => {
-        window.restore();
+        window.clearFakeXMLHttpRequest();
         callback();
     });
 

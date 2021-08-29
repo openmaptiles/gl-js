@@ -1,11 +1,10 @@
+import '../../stub_loader';
 import {test} from '../../util/test';
-import assert from 'assert';
-import ImageSource from '../../../src/source/image_source';
-import {Evented} from '../../../src/util/evented';
-import Transform from '../../../src/geo/transform';
-import {extend} from '../../../src/util/util';
-import browser from '../../../src/util/browser';
-import window from '../../../src/util/window';
+import ImageSource from '../../../rollup/build/tsc/source/image_source';
+import {Evented} from '../../../rollup/build/tsc/util/evented';
+import Transform from '../../../rollup/build/tsc/geo/transform';
+import {extend} from '../../../rollup/build/tsc/util/util';
+import browser from '../../../rollup/build/tsc/util/browser';
 
 function createSource(options) {
     options = extend({
@@ -30,24 +29,16 @@ class StubMap extends Evented {
 
 test('ImageSource', (t) => {
     window.useFakeXMLHttpRequest();
-    // stub this manually because sinon does not stub non-existent methods
-    assert(!window.URL.createObjectURL);
-    window.URL.createObjectURL = () => 'blob:';
-    t.tearDown(() => delete window.URL.createObjectURL);
-    // stub Image so we can invoke 'onload'
     // https://github.com/jsdom/jsdom/commit/58a7028d0d5b6aacc5b435daee9fd8f9eacbb14c
-    const img = {};
-    t.stub(window, 'Image').returns(img);
     // fake the image request (sinon doesn't allow non-string data for
     // server.respondWith, so we do so manually)
     const requests = [];
-    window.XMLHttpRequest.onCreate = req => { requests.push(req); };
+    XMLHttpRequest.onCreate = req => { requests.push(req); };
     const respond = () => {
         const req = requests.shift();
         req.setStatus(200);
         req.response = new ArrayBuffer(1);
         req.onload();
-        img.onload();
     };
     t.stub(browser, 'getImageData').callsFake(() => new ArrayBuffer(1));
 
@@ -64,10 +55,11 @@ test('ImageSource', (t) => {
         const source = createSource({url : '/image.png'});
         source.on('dataloading', (e) => {
             t.equal(e.dataType, 'source');
-            t.end();
         });
         source.onAdd(new StubMap());
         respond();
+        t.ok(source.image);
+        t.end();
     });
 
     t.test('transforms url request', (t) => {

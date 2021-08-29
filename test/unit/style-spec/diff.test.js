@@ -1,5 +1,5 @@
 import {test} from '../../util/test';
-import diffStyles from '../../../src/style-spec/diff';
+import diffStyles from '../../../rollup/build/tsc/style-spec/diff';
 
 test('diff', (t) => {
 
