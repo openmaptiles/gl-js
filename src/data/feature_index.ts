@@ -5,7 +5,7 @@ import {EXTENT} from './extent';
 import {featureFilter} from '@maplibre/maplibre-gl-style-spec';
 import {TransferableGridIndex} from '../util/transferable_grid_index';
 import {DictionaryCoder} from '../util/dictionary_coder';
-import vt from '@mapbox/vector-tile';
+import {VectorTile, type VectorTileFeature, type VectorTileLayer} from '@mapbox/vector-tile';
 import Protobuf from 'pbf';
 import {GeoJSONFeature} from '../util/vectortile_to_geojson';
 import type {MapGeoJSONFeature} from '../util/vectortile_to_geojson';
@@ -22,7 +22,6 @@ import {mat4} from 'gl-matrix';
 import type {StyleLayer} from '../style/style_layer';
 import type {FeatureFilter, FeatureState, FilterSpecification, PromoteIdSpecification} from '@maplibre/maplibre-gl-style-spec';
 import type {Transform} from '../geo/transform';
-import type {VectorTileFeature, VectorTileLayer} from '@mapbox/vector-tile';
 
 type QueryParameters = {
     scale: number;
@@ -98,7 +97,7 @@ export class FeatureIndex {
 
     loadVTLayers(): {[_: string]: VectorTileLayer} {
         if (!this.vtLayers) {
-            this.vtLayers = new vt.VectorTile(new Protobuf(this.rawTileData)).layers;
+            this.vtLayers = new VectorTile(new Protobuf(this.rawTileData)).layers;
             this.sourceLayerCoder = new DictionaryCoder(this.vtLayers ? Object.keys(this.vtLayers).sort() : ['_geojsonTileLayer']);
         }
         return this.vtLayers;

@@ -6,8 +6,7 @@ import {ProgramConfigurationSet} from '../program_configuration';
 import {TriangleIndexArray} from '../index_array_type';
 import {EXTENT} from '../extent';
 import earcut from 'earcut';
-import mvt from '@mapbox/vector-tile';
-const vectorTileFeatureTypes = mvt.VectorTileFeature.types;
+import {VectorTileFeature} from '@mapbox/vector-tile';
 import {classifyRings} from '@maplibre/maplibre-gl-style-spec';
 const EARCUT_MAX_RINGS = 500;
 import {register} from '../../util/web_worker_transfer';
@@ -234,7 +233,7 @@ export class FillExtrusionBucket implements Bucket {
 
             //Only triangulate and draw the area of the feature if it is a polygon
             //Other feature types (e.g. LineString) do not have area, so triangulation is pointless / undefined
-            if (vectorTileFeatureTypes[feature.type] !== 'Polygon')
+            if (VectorTileFeature.types[feature.type] !== 'Polygon')
                 continue;
 
             const flattened = [];

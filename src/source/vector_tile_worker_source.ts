@@ -1,6 +1,6 @@
 import {ExpiryData, getArrayBuffer} from '../util/ajax';
 
-import vt from '@mapbox/vector-tile';
+import {VectorTile} from '@mapbox/vector-tile';
 import Protobuf from 'pbf';
 import {WorkerTile} from './worker_tile';
 import {extend} from '../util/util';
@@ -15,7 +15,6 @@ import type {
 
 import type {IActor} from '../util/actor';
 import type {StyleLayerIndex} from '../style/style_layer_index';
-import type {VectorTile} from '@mapbox/vector-tile';
 
 export type LoadVectorTileResult = {
     vectorTile: VectorTile;
@@ -67,7 +66,7 @@ export class VectorTileWorkerSource implements WorkerSource {
     async loadVectorTile(params: WorkerTileParameters, abortController: AbortController): Promise<LoadVectorTileResult> {
         const response = await getArrayBuffer(params.request, abortController);
         try {
-            const vectorTile = new vt.VectorTile(new Protobuf(response.data));
+            const vectorTile = new VectorTile(new Protobuf(response.data));
             return {
                 vectorTile,
                 rawData: response.data,

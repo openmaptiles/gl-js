@@ -6,8 +6,7 @@ import {SegmentVector} from '../segment';
 import {ProgramConfigurationSet} from '../program_configuration';
 import {TriangleIndexArray} from '../index_array_type';
 import {EXTENT} from '../extent';
-import mvt from '@mapbox/vector-tile';
-const vectorTileFeatureTypes = mvt.VectorTileFeature.types;
+import {VectorTileFeature} from '@mapbox/vector-tile';
 import {register} from '../../util/web_worker_transfer';
 import {hasPattern, addPatternDependencies} from './pattern_bucket_features';
 import {loadGeometry} from '../load_geometry';
@@ -273,7 +272,7 @@ export class LineBucket implements Bucket {
             this.maxLineLength = Math.max(this.maxLineLength, this.totalDistance);
         }
 
-        const isPolygon = vectorTileFeatureTypes[feature.type] === 'Polygon';
+        const isPolygon = VectorTileFeature.types[feature.type] === 'Polygon';
 
         // If the line has duplicate vertices at the ends, adjust start/length to remove them.
         let len = vertices.length;

@@ -27,8 +27,7 @@ import {allowsVerticalWritingMode, stringContainsRTLText} from '../../util/scrip
 import {WritingMode} from '../../symbol/shaping';
 import {loadGeometry} from '../load_geometry';
 import {toEvaluationFeature} from '../evaluation_feature';
-import mvt from '@mapbox/vector-tile';
-const vectorTileFeatureTypes = mvt.VectorTileFeature.types;
+import {VectorTileFeature} from '@mapbox/vector-tile';
 import {verticalizedCharacterMap} from '../../util/verticalize_punctuation';
 import {Anchor} from '../../symbol/anchor';
 import {getSizeData, MAX_PACKED_SIZE} from '../../symbol/symbol_size';
@@ -522,7 +521,7 @@ export class SymbolBucket implements Bucket {
                 sourceLayerIndex,
                 geometry: evaluationFeature.geometry,
                 properties: feature.properties,
-                type: vectorTileFeatureTypes[feature.type],
+                type: VectorTileFeature.types[feature.type],
                 sortKey
             };
             this.features.push(symbolFeature);

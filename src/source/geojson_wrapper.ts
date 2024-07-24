@@ -1,11 +1,10 @@
 import Point from '@mapbox/point-geometry';
 
-import mvt from '@mapbox/vector-tile';
-import type {VectorTileFeature, VectorTileLayer, VectorTile} from '@mapbox/vector-tile';
-const toGeoJSON = mvt.VectorTileFeature.prototype.toGeoJSON;
+import {VectorTileFeature, type VectorTileLayer, type VectorTile} from '@mapbox/vector-tile';
 import {EXTENT} from '../data/extent';
 import type {TileFeature, AnyProps} from 'supercluster';
 import type {Feature as GeoJSONVTFeature} from 'geojson-vt';
+import type Pbf from 'pbf';
 
 export type Feature = TileFeature<AnyProps, AnyProps> | GeoJSONVTFeature;
 
@@ -16,6 +15,12 @@ class FeatureWrapper implements VectorTileFeature {
     type: Feature['type'];
     id: number;
     properties: {[_: string]: string | number | boolean};
+
+    // to support implementation of VectorTileFeature
+    _pbf: Pbf;
+    _geometry: number;
+    _keys: Array<string>;
+    _values: Array<unknown>;
 
     constructor(feature: Feature) {
         this._feature = feature;
@@ -56,7 +61,11 @@ class FeatureWrapper implements VectorTileFeature {
     }
 
     toGeoJSON(x: number, y: number, z: number) {
-        return toGeoJSON.call(this, x, y, z);
+        return VectorTileFeature.prototype.toGeoJSON.call(this, x, y, z);
+    }
+
+    bbox(): number[] {
+        return VectorTileFeature.prototype.bbox.call(this);
     }
 }
 
@@ -65,17 +74,23 @@ export class GeoJSONWrapper implements VectorTile, VectorTileLayer {
     name: string;
     extent: number;
     length: number;
-    _features: Array<Feature>;
+    _featuresCache: Array<Feature>;
+    // to support implementation of VectorTileLayer
+    version: number;
+    _features: number[];
+    _pbf: Pbf;
+    _keys: string[];
+    _values: unknown[];
 
     constructor(features: Array<Feature>) {
         this.layers = {'_geojsonTileLayer': this};
         this.name = '_geojsonTileLayer';
         this.extent = EXTENT;
         this.length = features.length;
-        this._features = features;
+        this._featuresCache = features;
     }
 
     feature(i: number): VectorTileFeature {
-        return new FeatureWrapper(this._features[i]);
+        return new FeatureWrapper(this._featuresCache[i]);
     }
 }
