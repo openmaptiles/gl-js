@@ -2,6 +2,7 @@ import {loadGlyphRange} from '../style/load_glyph_range';
 
 import TinySDF from '@mapbox/tiny-sdf';
 import {AlphaImage} from '../util/image';
+import {warnOnce} from '../util/util';
 
 import type {StyleGlyph} from '../style/style_glyph';
 import type {RequestManager} from '../util/request_manager';
@@ -84,7 +85,7 @@ export class GlyphManager {
             return {stack, id, glyph};
         }
 
-        glyph = this._tinySDF(entry, stack, id);
+        glyph = this._tinySDF(entry, stack, id, false);
         if (glyph) {
             entry.glyphs[id] = glyph;
             return {stack, id, glyph};
@@ -108,7 +109,22 @@ export class GlyphManager {
             entry.requests[range] = promise;
         }
 
-        const response = await entry.requests[range];
+        let response;
+        try {
+            response = await entry.requests[range];
+        } catch (e) {
+            glyph = this._tinySDF(entry, stack, id, true);
+            const begin = range * 256;
+            const end = begin + 255;
+            const codePoint = id.toString(16).toUpperCase();
+            if (glyph) {
+                warnOnce(`Unable to load glyph range ${range}, ${begin}-${end}. Rendering codepoint U+${codePoint} locally instead. ${e}`);
+                entry.glyphs[id] = glyph;
+                return {stack, id, glyph};
+            } else {
+                warnOnce(`Unable to load glyph range ${range}, ${begin}-${end}, or render codepoint U+${codePoint} locally. ${e}`);
+            }
+        }
         for (const id in response) {
             if (!this._doesCharSupportLocalGlyph(+id)) {
                 entry.glyphs[+id] = response[+id];
@@ -129,13 +145,13 @@ export class GlyphManager {
             /\p{Ideo}|\p{sc=Hang}|\p{sc=Hira}|\p{sc=Kana}/u.test(String.fromCodePoint(id));
     }
 
-    _tinySDF(entry: Entry, stack: string, id: number): StyleGlyph {
+    _tinySDF(entry: Entry, stack: string, id: number, force: boolean): StyleGlyph {
         const fontFamily = this.localIdeographFontFamily;
         if (!fontFamily) {
             return;
         }
 
-        if (!this._doesCharSupportLocalGlyph(id)) {
+        if (!force && !this._doesCharSupportLocalGlyph(id)) {
             return;
         }
 
