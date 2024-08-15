@@ -1,0 +1,43 @@
+{
+    "version": 8,
+    "metadata": {
+        "test": {
+            "pixelRatio": 2,
+            "localIdeographFontFamily": "sans-serif",
+            "width": 800,
+            "height": 600
+        }
+    },
+    "zoom": 8,
+    "sources": {
+        "sample": {
+            "type": "geojson",
+            "data": {
+                "type": "Feature",
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [0, 0]
+                },
+                "properties": {
+                    "name_en": "Georgia",
+                    "name_ka": "საქართველო"
+                }
+            }
+        }
+    },
+    "glyphs": "local://glyphs/{fontstack}/{range}.pbf",
+    "layers": [
+        {
+            "id": "sample-text",
+            "type": "symbol",
+            "source": "sample",
+            "layout": {
+                "text-anchor": "top",
+                "text-field": "{name_en} ({name_ka})",
+                "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+                "text-size": 30,
+                "text-offset": [0, 0]
+            }
+        }
+    ]
+}

@@ -18,14 +18,18 @@ export async function loadGlyphRange(fontstack: string,
         ResourceType.Glyphs
     );
 
-    const response = await getArrayBuffer(request, new AbortController());
-    if (!response || !response.data) {
-        throw new Error(`Could not load glyph range. range: ${range}, ${begin}-${end}`);
-    }
     const glyphs = {};
+    try {
+        const response = await getArrayBuffer(request, new AbortController());
+        if (!response || !response.data) {
+            throw new Error(`Could not load glyph range. range: ${range}, ${begin}-${end}`);
+        }
 
-    for (const glyph of parseGlyphPbf(response.data)) {
-        glyphs[glyph.id] = glyph;
+        for (const glyph of parseGlyphPbf(response.data)) {
+            glyphs[glyph.id] = glyph;
+        }
+    } catch (e) {
+        console.warn(`Could not load glyph range. range: ${range}, ${begin}-${end}`, e);
     }
 
     return glyphs;
