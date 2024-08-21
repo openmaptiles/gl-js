@@ -57,12 +57,12 @@ describe('TaggedString', () => {
         test('splits surrogate pairs', () => {
             const tagged = new TaggedString();
             tagged.text = '𰻞𰻞麵𪚥𪚥';
-            expect(tagged.codeUnitIndex(0)).toBe(0);
-            expect(tagged.codeUnitIndex(1)).toBe(2);
-            expect(tagged.codeUnitIndex(2)).toBe(4);
-            expect(tagged.codeUnitIndex(3)).toBe(5);
-            expect(tagged.codeUnitIndex(4)).toBe(7);
-            expect(tagged.codeUnitIndex(5)).toBe(9);
+            expect(tagged.toCodeUnitIndex(0)).toBe(0);
+            expect(tagged.toCodeUnitIndex(1)).toBe(2);
+            expect(tagged.toCodeUnitIndex(2)).toBe(4);
+            expect(tagged.toCodeUnitIndex(3)).toBe(5);
+            expect(tagged.toCodeUnitIndex(4)).toBe(7);
+            expect(tagged.toCodeUnitIndex(5)).toBe(9);
         });
     });
 });

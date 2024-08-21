@@ -166,7 +166,7 @@ export class TaggedString {
     /**
      * Converts a UTF-16 character index to a UTF-16 code unit (JavaScript character index).
      */
-    codeUnitIndex(unicodeIndex: number): number {
+    toCodeUnitIndex(unicodeIndex: number): number {
         return [...this.text].slice(0, unicodeIndex).join('').length;
     }
 
@@ -270,7 +270,7 @@ function shapeText(
         // Bidi doesn't have to be style-aware
         lines = [];
         // ICU operates on code units.
-        lineBreaks = lineBreaks.map(index => logicalInput.codeUnitIndex(index));
+        lineBreaks = lineBreaks.map(index => logicalInput.toCodeUnitIndex(index));
         const untaggedLines =
             processBidirectionalText(logicalInput.toString(), lineBreaks);
         for (const line of untaggedLines) {
@@ -288,9 +288,18 @@ function shapeText(
         // with formatting
         lines = [];
         // ICU operates on code units.
-        lineBreaks = lineBreaks.map(index => logicalInput.codeUnitIndex(index));
+        lineBreaks = lineBreaks.map(index => logicalInput.toCodeUnitIndex(index));
+
+        // Convert character-based section index to be based on code units.
+        let i = 0;
+        const sectionIndex = [];
+        for (const char of logicalInput.text) {
+            sectionIndex.push(...Array(char.length).fill(logicalInput.sectionIndex[i]));
+            i++;
+        }
+
         const processedLines =
-            processStyledBidirectionalText(logicalInput.text, logicalInput.sectionIndex, lineBreaks);
+            processStyledBidirectionalText(logicalInput.text, sectionIndex, lineBreaks);
         for (const line of processedLines) {
             const taggedLine = new TaggedString();
             taggedLine.text = line[0];
