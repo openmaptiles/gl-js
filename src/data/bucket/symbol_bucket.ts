@@ -424,12 +424,12 @@ export class SymbolBucket implements Bucket {
         allowVerticalPlacement: boolean,
         doesAllowVerticalWritingMode: boolean) {
 
-        for (let i = 0; i < text.length; i++) {
-            stack[text.charCodeAt(i)] = true;
+        for (const char of text) {
+            stack[char.codePointAt(0)] = true;
             if ((textAlongLine || allowVerticalPlacement) && doesAllowVerticalWritingMode) {
-                const verticalChar = verticalizedCharacterMap[text.charAt(i)];
+                const verticalChar = verticalizedCharacterMap[char];
                 if (verticalChar) {
-                    stack[verticalChar.charCodeAt(0)] = true;
+                    stack[verticalChar.codePointAt(0)] = true;
                 }
             }
         }

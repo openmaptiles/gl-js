@@ -1,6 +1,7 @@
 import {loadGlyphRange} from '../style/load_glyph_range';
 
 import TinySDF from '@mapbox/tiny-sdf';
+import {charAllowsIdeographicBreaking} from '../util/script_detection';
 import {AlphaImage} from '../util/image';
 
 import type {StyleGlyph} from '../style/style_glyph';
@@ -91,10 +92,6 @@ export class GlyphManager {
         }
 
         const range = Math.floor(id / 256);
-        if (range * 256 > 65535) {
-            throw new Error('glyphs > 65535 not supported');
-        }
-
         if (entry.ranges[range]) {
             return {stack, id, glyph};
         }
@@ -118,15 +115,21 @@ export class GlyphManager {
         return {stack, id, glyph: response[id] || null};
     }
 
+    /**
+     * Returns whether the given codepoint should be rendered locally.
+     *
+     * Local rendering is preferred for Unicode code blocks that represent writing systems for
+     * which TinySDF produces optimal results and greatly reduces bandwidth consumption. In
+     * general, TinySDF is best for any writing system typically set in a monospaced font. With
+     * more than 99,000 codepoints accessed essentially at random, Hanzi/Kanji/Hanja (from the CJK
+     * Unified Ideographs blocks) is the canonical example of wasteful bandwidth consumption when
+     * rendered remotely. For visual consistency within CJKV text, even relatively small CJKV and
+     * other siniform code blocks prefer local rendering.
+     */
     _doesCharSupportLocalGlyph(id: number): boolean {
-        // The CJK Unified Ideographs blocks and Hangul Syllables blocks are
-        // spread across many glyph PBFs and are typically accessed very
-        // randomly. Preferring local rendering for these blocks reduces
-        // wasteful bandwidth consumption. For visual consistency within CJKV
-        // text, also include any other CJKV or siniform ideograph or hangul,
-        // hiragana, or katakana character.
         return !!this.localIdeographFontFamily &&
-            /\p{Ideo}|\p{sc=Hang}|\p{sc=Hira}|\p{sc=Kana}/u.test(String.fromCodePoint(id));
+            (/\p{Ideo}|\p{sc=Hang}|\p{sc=Hira}|\p{sc=Kana}/u.test(String.fromCodePoint(id)) ||
+             charAllowsIdeographicBreaking(id));
     }
 
     _tinySDF(entry: Entry, stack: string, id: number): StyleGlyph {
@@ -163,7 +166,7 @@ export class GlyphManager {
             });
         }
 
-        const char = tinySDF.draw(String.fromCharCode(id));
+        const char = tinySDF.draw(String.fromCodePoint(id));
 
         /**
          * TinySDF's "top" is the distance from the alphabetic baseline to the top of the glyph.

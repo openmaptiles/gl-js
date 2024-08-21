@@ -66,6 +66,18 @@ describe('GlyphManager', () => {
         expect(returnedGlyphs['Arial Unicode MS'][0x5e73]).toBeNull(); // The fixture returns a PBF without the glyph we requested
     });
 
+    test('GlyphManager requests remote non-BMP, non-CJK PBF', async () => {
+        jest.spyOn(GlyphManager, 'loadGlyphRange').mockImplementation((_stack, _range, _urlTemplate, _transform) => {
+            return Promise.resolve(GLYPHS);
+        });
+
+        const manager = createGlyphManager();
+
+        // Request Egyptian hieroglyph 𓃰
+        const returnedGlyphs = await manager.getGlyphs({'Arial Unicode MS': [0x1e0f0]});
+        expect(returnedGlyphs['Arial Unicode MS'][0x1e0f0]).toBeNull(); // The fixture returns a PBF without the glyph we requested
+    });
+
     test('GlyphManager does not cache CJK chars that should be rendered locally', async () => {
         jest.spyOn(GlyphManager, 'loadGlyphRange').mockImplementation((_stack, range, _urlTemplate, _transform) => {
             const overlappingGlyphs = {};
@@ -96,6 +108,14 @@ describe('GlyphManager', () => {
         // Chinese character píng 平
         const returnedGlyphs = await manager.getGlyphs({'Arial Unicode MS': [0x5e73]});
         expect(returnedGlyphs['Arial Unicode MS'][0x5e73].metrics.advance).toBe(0.5);
+    });
+
+    test('GlyphManager generates non-BMP CJK PBF locally', async () => {
+        const manager = createGlyphManager('sans-serif');
+
+        // Chinese character biáng 𰻞
+        const returnedGlyphs = await manager.getGlyphs({'Arial Unicode MS': [0x30EDE]});
+        expect(returnedGlyphs['Arial Unicode MS'][0x30EDE].metrics.advance).toBe(1);
     });
 
     test('GlyphManager generates Katakana PBF locally', async () => {

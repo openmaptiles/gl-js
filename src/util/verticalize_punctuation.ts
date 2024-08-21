@@ -89,20 +89,28 @@ export const verticalizedCharacterMap = {
 export function verticalizePunctuation(input: string) {
     let output = '';
 
-    for (let i = 0; i < input.length; i++) {
-        const nextCharCode = input.charCodeAt(i + 1) || null;
-        const prevCharCode = input.charCodeAt(i - 1) || null;
+    let prevChar = {premature: true, value: undefined};
+    const chars = input[Symbol.iterator]();
+    let char = chars.next();
+    const nextChars = input[Symbol.iterator]();
+    nextChars.next();
+    let nextChar = nextChars.next();
 
+    while (!char.done) {
         const canReplacePunctuation = (
-            (!nextCharCode || !charHasRotatedVerticalOrientation(nextCharCode) || verticalizedCharacterMap[input[i + 1]]) &&
-            (!prevCharCode || !charHasRotatedVerticalOrientation(prevCharCode) || verticalizedCharacterMap[input[i - 1]])
+            (nextChar.done || !charHasRotatedVerticalOrientation(nextChar.value.codePointAt(0)) || verticalizedCharacterMap[nextChar.value]) &&
+            (prevChar.premature || !charHasRotatedVerticalOrientation(prevChar.value.codePointAt(0)) || verticalizedCharacterMap[prevChar.value])
         );
 
-        if (canReplacePunctuation && verticalizedCharacterMap[input[i]]) {
-            output += verticalizedCharacterMap[input[i]];
+        if (canReplacePunctuation && verticalizedCharacterMap[char.value]) {
+            output += verticalizedCharacterMap[char.value];
         } else {
-            output += input[i];
+            output += char.value;
         }
+
+        prevChar = {value: char.value, premature: false};
+        char = chars.next();
+        nextChar = nextChars.next();
     }
 
     return output;

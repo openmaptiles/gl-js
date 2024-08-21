@@ -3,6 +3,7 @@ import {charAllowsIdeographicBreaking, charAllowsLetterSpacing, charHasUprightVe
 describe('charAllowsIdeographicBreaking', () => {
     test('disallows ideographic breaking of Latin text', () => {
         expect(charAllowsIdeographicBreaking('A'.codePointAt(0))).toBe(false);
+        expect(charAllowsIdeographicBreaking('3'.codePointAt(0))).toBe(false);
     });
 
     test('allows ideographic breaking of ideographic punctuation', () => {
@@ -16,6 +17,8 @@ describe('charAllowsIdeographicBreaking', () => {
     test('allows ideographic breaking of Chinese and Vietnamese text', () => {
         expect(charAllowsIdeographicBreaking('市'.codePointAt(0))).toBe(true);
         expect(charAllowsIdeographicBreaking('𡔖'.codePointAt(0))).toBe(true);
+        expect(charAllowsIdeographicBreaking('麵'.codePointAt(0))).toBe(true);
+        expect(charAllowsIdeographicBreaking('𪚥'.codePointAt(0))).toBe(true);
     });
 
     test('disallows ideographic breaking of Korean text', () => {
