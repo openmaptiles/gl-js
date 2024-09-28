@@ -49,6 +49,9 @@ export class Transform {
     _zoom: number;
     _unmodified: boolean;
     _renderWorldCopies: boolean;
+    _allowUnderzoom: boolean;
+    _underzoom: number;
+    _overpan: number;
     _minZoom: number;
     _maxZoom: number;
     _minPitch: number;
@@ -74,12 +77,15 @@ export class Transform {
      */
     nearZ: number;
 
-    constructor(minZoom?: number, maxZoom?: number, minPitch?: number, maxPitch?: number, renderWorldCopies?: boolean) {
+    constructor(minZoom?: number, maxZoom?: number, minPitch?: number, maxPitch?: number, renderWorldCopies?: boolean, allowUnderzoom?: boolean, underzoom?: number, overpan?: number) {
         this.tileSize = 512; // constant
 
         this._renderWorldCopies = renderWorldCopies === undefined ? true : !!renderWorldCopies;
         this._minZoom = minZoom || 0;
         this._maxZoom = maxZoom || 22;
+        this._allowUnderzoom = allowUnderzoom === undefined ? false : !!allowUnderzoom;
+        this._underzoom = underzoom || 100;
+        this._overpan = overpan || 0;
 
         this._minPitch = (minPitch === undefined || minPitch === null) ? 0 : minPitch;
         this._maxPitch = (maxPitch === undefined || maxPitch === null) ? 60 : maxPitch;
@@ -103,7 +109,7 @@ export class Transform {
     }
 
     clone(): Transform {
-        const clone = new Transform(this._minZoom, this._maxZoom, this._minPitch, this.maxPitch, this._renderWorldCopies);
+        const clone = new Transform(this._minZoom, this._maxZoom, this._minPitch, this.maxPitch, this._renderWorldCopies, this._allowUnderzoom, this._underzoom, this._overpan);
         clone.apply(this);
         return clone;
     }
@@ -163,6 +169,41 @@ export class Transform {
         }
 
         this._renderWorldCopies = renderWorldCopies;
+
+        this._constrain();
+        this._calcMatrices();
+    }
+
+    get allowUnderzoom(): boolean { return this._allowUnderzoom; }
+    set allowUnderzoom(allowUnderzoom: boolean) {
+        if (allowUnderzoom === undefined) {
+            allowUnderzoom = false;
+        } else if (allowUnderzoom === null) {
+            allowUnderzoom = false;
+        }
+
+        this._allowUnderzoom = allowUnderzoom;
+
+        this._constrain();
+        this._calcMatrices();
+    }
+
+    get underzoom(): number { return this._underzoom; }
+    set underzoom(underzoom: number) {
+        if (this._underzoom === underzoom) return;
+        this._underzoom = underzoom;
+
+        this._constrain();
+        this._calcMatrices();
+    }
+
+    get overpan(): number { return this._overpan; }
+    set overpan(overpan: number) {
+        if (this._overpan === overpan) return;
+        this._overpan = overpan;
+
+        this._constrain();
+        this._calcMatrices();
     }
 
     get worldSize(): number {
@@ -764,6 +805,7 @@ export class Transform {
      * 1) everything beyond the bounds is excluded
      * 2) a given lngLat is as near the center as possible
      * Bounds are those set by maxBounds or North & South "Poles" and, if only 1 globe is displayed, antimeridian.
+     * Underzooming and overpanning beyond the bounds is done if 1 globe is displayed and allowUnderzoom=true.
      */
     getConstrained(lngLat: LngLat, zoom: number): {center: LngLat; zoom: number} {
         zoom = clamp(+zoom, this.minZoom, this.maxZoom);
@@ -788,12 +830,38 @@ export class Transform {
         let scaleX = 0;
         const {x: screenWidth, y: screenHeight} = this.size;
 
+        // For a single-world map, a user can underzoom the world to see it
+        // entirely in the viewport. This works by reducing the viewport's
+        // apparent size to a square with a side length equal to the smallest
+        // viewport dimension scaled by the `underzoom` percentage.
+        // The user can also overpan the world bounds up to 50% the viewport
+        // dimensions, limited by the `overpan` percentage.
+        // _________________________
+        // |viewport               |
+        // |                       |
+        // |                       |
+        // |     -———————————-     |
+        // |     |map bounds |     |
+        // |     |           |     |
+        // |·····|···········|<--->| overpan
+        // |     |           |     |
+        // |     -———————————-     |
+        // |·····<----------->·····| underzoom
+        // |                       |
+        // |                       |
+        // |_______________________|
+
+        const underzoom =  // 0-1 (percent as normalized factor of viewport minimum dimension)
+            (!this._renderWorldCopies && this._allowUnderzoom) ?
+                clamp(this._underzoom, 0, 100) / 100 :
+                1.0;
+
         if (this.latRange) {
             const latRange = this.latRange;
             minY = mercatorYfromLat(latRange[1]) * worldSize;
             maxY = mercatorYfromLat(latRange[0]) * worldSize;
-            const shouldZoomIn = maxY - minY < screenHeight;
-            if (shouldZoomIn) scaleY = screenHeight / (maxY - minY);
+            const shouldZoomIn = maxY - minY < (underzoom * screenHeight);
+            if (shouldZoomIn) scaleY = underzoom * screenHeight / (maxY - minY);
         }
 
         if (lngRange) {
@@ -810,27 +878,46 @@ export class Transform {
 
             if (maxX < minX) maxX += worldSize;
 
-            const shouldZoomIn = maxX - minX < screenWidth;
-            if (shouldZoomIn) scaleX = screenWidth / (maxX - minX);
+            const shouldZoomIn = maxX - minX < (underzoom * screenWidth);
+            if (shouldZoomIn) scaleX = underzoom * screenWidth / (maxX - minX);
         }
 
         const {x: originalX, y: originalY} = this.project.call({worldSize}, lngLat);
         let modifiedX, modifiedY;
 
-        const scale = Math.max(scaleX || 0, scaleY || 0);
+        const scale =
+            (!this._renderWorldCopies && this._allowUnderzoom) ?
+                Math.min(scaleX || 0, scaleY || 0) :
+                Math.max(scaleX || 0, scaleY || 0);
 
         if (scale) {
             // zoom in to exclude all beyond the given lng/lat ranges
             const newPoint = new Point(
                 scaleX ? (maxX + minX) / 2 : originalX,
                 scaleY ? (maxY + minY) / 2 : originalY);
-            result.center = this.unproject.call({worldSize}, newPoint).wrap();
+            if (this._renderWorldCopies) result.center = this.unproject.call({worldSize}, newPoint).wrap();
             result.zoom += this.scaleZoom(scale);
             return result;
         }
 
+        // Panning up and down in latitude is externally limited by project() with MAX_VALID_LATITUDE.
+        // This limit prevents panning the top and bottom bounds farther than the center of the viewport.
+        // Due to the complexity and consequence of altering project() or MAX_VALID_LATITUDE, we'll simply limit
+        // the overpan to 50% the bounds to match that external limit.
+        let lngOverpan = 0.0;
+        let latOverpan = 0.0;
+        if (!this._renderWorldCopies && this._allowUnderzoom) {
+            const overpan = 2 * clamp(this._overpan, 0, 50) / 100;  // 0-1 (percent as a normalized factor from viewport edge to center)
+            const latUnderzoomMinimumPan = 1.0 - ((maxY - minY) / screenHeight);
+            const lngUnderzoomMinimumPan = 1.0 - ((maxX - minX) / screenWidth);
+            lngOverpan = Math.max(lngUnderzoomMinimumPan, overpan);
+            latOverpan = Math.max(latUnderzoomMinimumPan, overpan);
+        }
+        const lngPanScale = 1.0 - lngOverpan;
+        const latPanScale = 1.0 - latOverpan;
+
         if (this.latRange) {
-            const h2 = screenHeight / 2;
+            const h2 = latPanScale * screenHeight / 2;
             if (originalY - h2 < minY) modifiedY = minY + h2;
             if (originalY + h2 > maxY) modifiedY = maxY - h2;
         }
@@ -841,7 +928,7 @@ export class Transform {
             if (this._renderWorldCopies) {
                 wrappedX = wrap(originalX, centerX - worldSize / 2, centerX + worldSize / 2);
             }
-            const w2 = screenWidth / 2;
+            const w2 = lngPanScale * screenWidth / 2;
 
             if (wrappedX - w2 < minX) modifiedX = minX + w2;
             if (wrappedX + w2 > maxX) modifiedX = maxX - w2;
@@ -850,7 +937,8 @@ export class Transform {
         // pan the map if the screen goes off the range
         if (modifiedX !== undefined || modifiedY !== undefined) {
             const newPoint = new Point(modifiedX ?? originalX, modifiedY ?? originalY);
-            result.center = this.unproject.call({worldSize}, newPoint).wrap();
+            result.center = this.unproject.call({worldSize}, newPoint);
+            if (this._renderWorldCopies) result.center = result.center.wrap();
         }
 
         return result;

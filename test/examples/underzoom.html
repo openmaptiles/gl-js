@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <title>Unbounded underzoom</title>
+    <meta property='og:description' content='Adjust underzoom parameters on an unbounded world.' />
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' href='../../dist/maplibre-gl.css' />
+    <script src='../../dist/maplibre-gl-dev.js'></script>
+    <style>
+        :root {
+            --checker-dark: #3e3e3e;
+            --checker-light: #4d4d4d;
+            --checker-size: 40px;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--checker-light);
+            background-image: linear-gradient(45deg, var(--checker-dark) 25%, transparent 25%), linear-gradient(-45deg, var(--checker-dark) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, var(--checker-dark) 75%), linear-gradient(-45deg, transparent 75%, var(--checker-dark) 75%);
+            background-size: var(--checker-size) var(--checker-size);
+            background-position: 0 0, 0 20px, 20px -20px, -20px 0px;
+        }
+        html, body, #map { height: 100%; }
+        .listing-group {
+            font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+            position: absolute;
+            color: #fff;
+            background-color: rgb(157, 156, 156);
+            padding: 10px;
+            border-radius: 4px;
+        }
+        #listing-group-top-left {
+            top: 10px;
+            left: 10px;
+        }
+        #listing-group-bottom-left {
+            bottom: 10px;
+            left: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div id='map'></div>
+
+<table id='listing-group-bottom-left' class='listing-group'>
+    <tr><td><label for='render-world-copies'>render world copies</label></td><td><input type='checkbox' id='render-world-copies' unchecked/></td></tr>
+    <tr><td><label for='allow-underzoom'>allow underzoom</label></td><td><input type='checkbox' id='allow-underzoom' checked/></td></tr>
+    <tr><td><label for='underzoom-slider' id='underzoom-label'>underzoom</label></td><td><input type='range' id='underzoom-slider' min='0' max='100' step='10' value='80' /></td></tr>
+    <tr><td><label for='overpan-slider' id='overpan-label'>overpan ratio</label></td><td><input type='range' id='overpan-slider' min='0' max='50' step='10' value='50' /></td></tr>
+</table>
+
+<table id='listing-group-top-left' class='listing-group'>
+    <tr><td><label for='zoom-out'>zoom out upon change</label></td><td><input type='checkbox' id='zoom-out' checked/></td></tr>
+</table>
+
+<script>
+    const zeroPad = (num, places) => String(num).padStart(places, '0');
+    function setUnderzoomFromUi() {
+        map.setRenderWorldCopies(
+            document.getElementById('render-world-copies').checked
+        );
+        map.setAllowUnderzoom(
+            document.getElementById('allow-underzoom').checked
+        );
+        const underzoom = parseFloat(document.getElementById('underzoom-slider').value);
+        map.setUnderzoom(underzoom);
+        document.getElementById('underzoom-label').textContent = `underzoom (${zeroPad(underzoom, 3)}%)`;
+        if (document.getElementById('zoom-out').checked) {
+            map.setZoom(-Infinity);
+        }
+    }
+    function setOverpanFromUi() {
+        const overpan = parseFloat(document.getElementById('overpan-slider').value);
+        map.setOverpan(overpan);
+        document.getElementById('overpan-label').textContent = `overpan (${zeroPad(overpan, 2)}%)`;
+    }
+
+    const map = new maplibregl.Map({
+        container: 'map',
+        center: [0, 0], // starting position [lng, lat]
+        renderWorldCopies: false,
+        allowUnderzoom: true,
+        underzoomPercent: 80,
+        overpanRatio: 1.0,
+        style: {
+            version: 8,
+            sources: {
+                rgb: {
+                    type: 'raster',
+                    tiles: ['https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'],
+                    tileSize: 256,
+                    attribution: '&copy; OpenStreetMap Contributors',
+                    maxzoom: 19
+                },
+            },
+            layers: [
+                {
+                    id: 'rgb',
+                    type: 'raster',
+                    source: 'rgb'
+                },
+            ]
+        },
+    });
+
+    map.addControl(
+        new maplibregl.NavigationControl({
+            visualizePitch: true,
+            showZoom: true,
+            showCompass: true
+        }),
+        'top-right'
+    );
+
+    // World bounds
+    const north = 85.0511287798066;
+    const east = 180;
+    const south = -85.05112877980659;
+    const west = -180;
+
+    map.on('load', () => {
+        document.getElementById('render-world-copies').addEventListener('change', setUnderzoomFromUi);
+        document.getElementById('allow-underzoom').addEventListener('change', setUnderzoomFromUi);
+        document.getElementById('underzoom-slider').addEventListener('input', setUnderzoomFromUi);
+        document.getElementById('overpan-slider').addEventListener('input', setOverpanFromUi);
+        setUnderzoomFromUi();
+        setOverpanFromUi();
+    });
+</script>
+</body>
+</html>
