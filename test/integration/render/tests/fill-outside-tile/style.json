@@ -1,0 +1,37 @@
+{
+  "version": 8,
+  "metadata": {
+    "test": {
+      "description": "Tests that tiles are properly clipped by drawing a tile that has all its geometry outside its visible area. See issue #4803. The expected (correct) result is that nothing is drawn.",
+      "width": 64,
+      "height": 64
+    }
+  },
+  "zoom": 2.125,
+  "sources": {
+    "vector_tiles": {
+      "type": "vector",
+      "tiles": [
+        "local://tiles/outside_ring.mvt"
+      ]
+    }
+  },
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": {
+        "background-color": "white"
+      }
+    },
+    {
+      "id": "ocean",
+      "type": "fill",
+      "source": "vector_tiles",
+      "source-layer": "water",
+      "paint": {
+        "fill-color": "black"
+      }
+    }
+  ]
+}
