@@ -19,14 +19,16 @@ export const globeConstants = {
 
 const granularitySettingsGlobe: SubdivisionGranularitySetting = new SubdivisionGranularitySetting({
     fill: new SubdivisionGranularityExpression(128, 1),
-    line: new SubdivisionGranularityExpression(512, 1),
+    line: new SubdivisionGranularityExpression(512, 0),
     // Always keep at least some subdivision on raster tiles, etc,
     // otherwise they will be visibly warped at high zooms (before mercator transition).
     // This si not needed on fill, because fill geometry tends to already be
     // highly tessellated and granular at high zooms.
-    // Minimal granularity of 8 seems to be enough to avoid warped raster tiles, while also minimizing triangle count.
     tile: new SubdivisionGranularityExpression(128, 32),
-    stencil: new SubdivisionGranularityExpression(128, 4),
+    // Stencil granularity must never be higher than fill granularity,
+    // otherwise we would get seams in the oceans at zoom levels where
+    // stencil has higher granularity than fill.
+    stencil: new SubdivisionGranularityExpression(128, 1),
     circle: 3
 });
 
