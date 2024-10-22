@@ -122,7 +122,7 @@ vec4 projectTile(vec2 posInTile) {
 }
 
 // A variant that supports special pole and planet center vertices.
-vec4 projectTile(vec2 p, vec2 rawPos) {
+vec4 projectTile(vec2 posInTile, vec2 rawPos) {
     return interpolateProjection(posInTile, projectToSphere(posInTile, rawPos), 0.0);
 }
 
