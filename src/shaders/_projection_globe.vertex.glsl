@@ -44,7 +44,7 @@ float projectLineThickness(float tileY) {
 }
 
 // get position inside the tile in range 0..8192 and project it onto the surface of a unit sphere
-vec3 projectToSphere(vec2 posInTile) {
+vec3 projectToSphere(vec2 posInTile, vec2 rawPos) {
     // Compute position in range 0..1 of the base tile of web mercator
     vec2 mercator_pos = u_projection_tile_mercator_coords.xy + u_projection_tile_mercator_coords.zw * posInTile;
 
@@ -61,15 +61,19 @@ vec3 projectToSphere(vec2 posInTile) {
     );
 
     // North pole
-    if (posInTile.y < -32767.5) {
+    if (rawPos.y < -32767.5) {
         pos = vec3(0.0, 1.0, 0.0);
     }
     // South pole
-    if (posInTile.y > 32766.5) {
+    if (rawPos.y > 32766.5) {
         pos = vec3(0.0, -1.0, 0.0);
     }
 
     return pos;
+}
+
+vec3 projectToSphere(vec2 posInTile) {
+    return projectToSphere(posInTile, vec2(0.0, 0.0));
 }
 
 float globeComputeClippingZ(vec3 spherePos) {
@@ -115,6 +119,11 @@ vec4 interpolateProjectionFor3D(vec2 posInTile, vec3 spherePos, float elevation)
 // on the backfacing side of the planet.
 vec4 projectTile(vec2 posInTile) {
     return interpolateProjection(posInTile, projectToSphere(posInTile), 0.0);
+}
+
+// A variant that supports special pole and planet center vertices.
+vec4 projectTile(vec2 p, vec2 rawPos) {
+    return interpolateProjection(posInTile, projectToSphere(posInTile, rawPos), 0.0);
 }
 
 // Uses elevation to compute final screenspace projection

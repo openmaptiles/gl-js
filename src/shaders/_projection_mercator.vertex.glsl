@@ -8,10 +8,16 @@ float projectCircleRadius(float tileY) {
 
 // Projects a point in tile-local coordinates (usually 0..EXTENT) to screen.
 vec4 projectTile(vec2 p) {
+    vec4 result = u_projection_matrix * vec4(p, 0.0, 1.0);
+    return result;
+}
+
+// Projects a point in tile-local coordinates (usually 0..EXTENT) to screen, and handle special pole or planet center vertices.
+vec4 projectTile(vec2 p, vec2 rawPos) {
     // Kill pole vertices and triangles by placing the pole vertex so far in Z that
     // the clipping hardware kills the entire triangle.
     vec4 result = u_projection_matrix * vec4(p, 0.0, 1.0);
-    if (p.y < -32767.5 || p.y > 32766.5) {
+    if (rawPos.y < -32767.5 || rawPos.y > 32766.5) {
         result.z = -10000000.0;
     }
     return result;

@@ -5,7 +5,7 @@ in vec2 a_pos;
 out vec2 v_pos;
 
 void main() {
-    gl_Position = projectTile(a_pos);
+    gl_Position = projectTile(a_pos, a_pos);
     v_pos = a_pos / 8192.0;
     // North pole
     if (a_pos.y < -32767.5) {
