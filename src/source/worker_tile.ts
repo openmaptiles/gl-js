@@ -24,6 +24,7 @@ import type {PromoteIdSpecification} from '@maplibre/maplibre-gl-style-spec';
 import type {VectorTile} from '@mapbox/vector-tile';
 import {MessageType, type GetGlyphsResponse, type GetImagesResponse} from '../util/actor_messages';
 import type {SubdivisionGranularitySetting} from '../render/subdivision_granularity_settings';
+import {PerformanceMarkers, PerformanceUtils} from '../util/performance';
 
 export class WorkerTile {
     tileID: OverscaledTileID;
@@ -160,6 +161,7 @@ export class WorkerTile {
             getPatternsPromise = actor.sendAsync({type: MessageType.getImages, data: {icons: patterns, source: this.source, tileID: this.tileID, type: 'patterns'}}, abortController);
         }
 
+        PerformanceUtils.mark(PerformanceMarkers.glyphsRequested);
         const [glyphMap, iconMap, patternMap] = await Promise.all([getGlyphsPromise, getIconsPromise, getPatternsPromise]);
         const glyphAtlas = new GlyphAtlas(glyphMap);
         const imageAtlas = new ImageAtlas(iconMap, patternMap);

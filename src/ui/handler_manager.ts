@@ -21,6 +21,7 @@ import {extend} from '../util/util';
 import {browser} from '../util/browser';
 import Point from '@mapbox/point-geometry';
 import {MapControlsDeltas} from '../geo/projection/camera_helper';
+import {PerformanceMarkers, PerformanceUtils} from '../util/performance';
 
 const isMoving = (p: EventsInProgress) => p.zoom || p.drag || p.roll || p.pitch || p.rotate;
 
@@ -359,6 +360,10 @@ export class HandlerManager {
     }
 
     handleEvent = (e: Event, eventName?: keyof Handler) => {
+        if (e.type === 'moveend' || e.type === 'zoomend' || e.type === 'rotateend') {
+            // When viewport change ends and we know what new tiles we need
+            PerformanceUtils.mark(PerformanceMarkers.viewportChanged);
+        }
 
         if (e.type === 'blur') {
             this.stop(true);

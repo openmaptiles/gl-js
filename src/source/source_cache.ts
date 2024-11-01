@@ -23,6 +23,7 @@ import type {SourceSpecification} from '@maplibre/maplibre-gl-style-spec';
 import type {MapSourceDataEvent} from '../ui/events';
 import type {Terrain} from '../render/terrain';
 import type {CanvasSourceSpecification} from './canvas_source';
+import {PerformanceMarkers, PerformanceUtils} from '../util/performance';
 
 type TileResult = {
     tile: Tile;
@@ -173,8 +174,11 @@ export class SourceCache extends Evented {
     }
 
     async _loadTile(tile: Tile, id: string, state: TileState): Promise<void> {
+        PerformanceUtils.mark(PerformanceMarkers.lastTileRequested);
+        
         try {
             await this._source.loadTile(tile);
+            PerformanceUtils.mark(PerformanceMarkers.tileReceived);
             this._tileLoaded(tile, id, state);
         } catch (err) {
             tile.state = 'errored';

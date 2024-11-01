@@ -65,6 +65,7 @@ import {
 } from '../util/actor_messages';
 import {Projection} from '../geo/projection/projection';
 import {createProjectionFromName} from '../geo/projection/projection_factory';
+import {PerformanceMarkers, PerformanceUtils} from '../util/performance';
 
 const empty = emptyStyle() as StyleSpecification;
 /**
@@ -317,6 +318,7 @@ export class Style extends Evented {
             this._frameRequest = null;
             options.validate = options.validate !== false;
             this._load(json, options, previousStyle);
+            PerformanceUtils.mark(PerformanceMarkers.styleLoaded);
         }).catch(() => {}); // ignore abort
     }
 

@@ -8,10 +8,22 @@ export type PerformanceMetrics = {
     totalFrames: number;
 };
 
+export type NetworkUtilizationMetrics = {
+    viewportToTilesDelay: number;   // Time between viewport change and tile requests
+    styleToTilesDelay: number;      // Time between style load and tile requests
+    tileToGlyphsDelay: number;      // Time between tile load and glyph requests
+};
+
 export enum PerformanceMarkers {
     create = 'create',
     load = 'load',
-    fullLoad = 'fullLoad'
+    fullLoad = 'fullLoad',
+
+    styleLoaded = 'styleLoaded',
+    lastTileRequested = 'lastTileRequested',
+    tileReceived = 'tileReceived',
+    glyphsRequested = 'glyphsRequested',
+    viewportChanged = 'viewportChanged'
 }
 
 let lastFrameTime = null;
@@ -70,6 +82,20 @@ export const PerformanceUtils = {
             fps,
             percentDroppedFrames,
             totalFrames
+        };
+    },
+
+    getNetworkUtilizationMetrics(): NetworkUtilizationMetrics {
+        const styleLoadTime = performance.getEntriesByName(PerformanceMarkers.styleLoaded)[0]?.startTime || 0;
+        const lastTileRequestTime = performance.getEntriesByName(PerformanceMarkers.lastTileRequested)[0]?.startTime || 0;
+        const tileReceiveTime = performance.getEntriesByName(PerformanceMarkers.tileReceived)[0]?.startTime || 0;
+        const glyphsRequestTime = performance.getEntriesByName(PerformanceMarkers.glyphsRequested)[0]?.startTime || 0;
+        const viewportChangeTime = performance.getEntriesByName(PerformanceMarkers.viewportChanged)[0]?.startTime || 0;
+
+        return {
+            styleToTilesDelay: lastTileRequestTime - styleLoadTime,
+            tileToGlyphsDelay: glyphsRequestTime - tileReceiveTime,
+            viewportToTilesDelay: lastTileRequestTime - viewportChangeTime
         };
     }
 };
