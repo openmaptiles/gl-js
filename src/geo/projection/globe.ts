@@ -18,7 +18,7 @@ export const globeConstants = {
 };
 
 const granularitySettingsGlobe: SubdivisionGranularitySetting = new SubdivisionGranularitySetting({
-    fill: new SubdivisionGranularityExpression(128, 1),
+    fill: new SubdivisionGranularityExpression(128, 2),
     line: new SubdivisionGranularityExpression(512, 0),
     // Always keep at least some subdivision on raster tiles, etc,
     // otherwise they will be visibly warped at high zooms (before mercator transition).
