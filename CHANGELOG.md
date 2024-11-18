@@ -3,6 +3,7 @@
 ### ✨ Features and improvements
 - Export `Event` class ([#5016](https://github.com/maplibre/maplibre-gl-js/pull/5016))
 - Support Vertical Perspective projection ([#5023](https://github.com/maplibre/maplibre-gl-js/pull/5023))
+- Toggle for Terrain Collision ([#5028](https://github.com/maplibre/maplibre-gl-js/pull/5028))
 - _...Add new stuff here..._
 
 ### 🐞 Bug fixes

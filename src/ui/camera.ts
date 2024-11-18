@@ -321,6 +321,13 @@ export abstract class Camera extends Evented {
      */
     _centerClampedToGround: boolean;
 
+    /**
+     * @internal
+     * Controls whether the camera should avoid going below terrain surface.
+     * When false, the camera can go under the terrain.
+     */
+    _terrainCollision?: boolean;
+
     abstract _requestRenderFrame(a: () => void): TaskID;
     abstract _cancelRenderFrame(_: TaskID): void;
 
@@ -333,6 +340,7 @@ export abstract class Camera extends Evented {
         this.transform = transform;
         this._bearingSnap = options.bearingSnap;
         this.cameraHelper = cameraHelper;
+        this._terrainCollision = true;
 
         this.on('moveend', () => {
             delete this._requestedCameraState;
@@ -421,6 +429,26 @@ export abstract class Camera extends Evented {
      */
     setCenterClampedToGround(centerClampedToGround: boolean): void {
         this._centerClampedToGround = centerClampedToGround;
+    }
+
+    /**
+     * Gets whether terrain collision detection is enabled.
+     *
+     * When true (default), camera will avoid going below terrain surface.
+     * When false, camera can go under the terrain.
+     */
+    getTerrainCollision(): boolean {
+        return this._terrainCollision;
+    }
+
+    /**
+     * Sets whether terrain collision detection is enabled.
+     *
+     * When true (default), camera will avoid going below terrain surface.
+     * When false, camera can go under the terrain.
+     */
+    setTerrainCollision(terrainCollision: boolean): void {
+        this._terrainCollision = terrainCollision;
     }
 
     /**
@@ -1239,6 +1267,10 @@ export abstract class Camera extends Evented {
      * @param tr - The transform to check.
      */
     _elevateCameraIfInsideTerrain(tr: ITransform) : { pitch?: number; zoom?: number } {
+        if (!this._terrainCollision) {
+            return {};
+        }
+
         if (!this.terrain && tr.elevation >= 0 && tr.pitch <= 90) {
             return {};
         }
