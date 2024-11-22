@@ -37,7 +37,7 @@
     "global-prefix": "^4.0.0",
     "kdbush": "^4.0.2",
     "murmurhash-js": "^1.0.0",
-    "pbf": "^3.3.0",
+    "pbf": "^4.0.1",
     "potpack": "^2.0.0",
     "quickselect": "^3.0.0",
     "supercluster": "^8.0.1",
