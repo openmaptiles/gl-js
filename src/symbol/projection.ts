@@ -465,9 +465,13 @@ function placeGlyphsAlongLine(args: GlyphLinePlacementArgs): GlyphLinePlacementR
 
         placedGlyphs = [firstAndLastGlyph.first];
         for (let glyphIndex = symbol.glyphStartIndex + 1; glyphIndex < glyphEndIndex - 1; glyphIndex++) {
-            // Since first and last glyph fit on the line, we're sure that the rest of the glyphs can be placed
-            placedGlyphs.push(placeGlyphAlongLine(fontScale * glyphOffsetArray.getoffsetX(glyphIndex), lineOffsetX, lineOffsetY, flip, symbol.segment,
-                lineStartIndex, lineEndIndex, projectionContext, rotateToLine));
+            // Since first and last glyph fit on the line, try placing the rest of the glyphs.
+            const placedGlyph = placeGlyphAlongLine(fontScale * glyphOffsetArray.getoffsetX(glyphIndex), lineOffsetX, lineOffsetY, flip, symbol.segment,
+                lineStartIndex, lineEndIndex, projectionContext, rotateToLine);
+            if (!placedGlyph) {
+                return {notEnoughRoom: true};
+            }
+            placedGlyphs.push(placedGlyph);
         }
         placedGlyphs.push(firstAndLastGlyph.last);
     } else {

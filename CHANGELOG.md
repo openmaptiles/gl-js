@@ -7,6 +7,7 @@
 ### 🐞 Bug fixes
 - Fixes line flickering problem ([#5094](https://github.com/maplibre/maplibre-gl-js/pull/5094))
 - Fix poor performance in Chrome related to passing matrices to WebGL ([#5072](https://github.com/maplibre/maplibre-gl-js/pull/5072))
+- Fix handling invalid glyph placement results along lines ([#5118](https://github.com/maplibre/maplibre-gl-js/pull/5118))
 - _...Add new stuff here..._
 
 ## 5.0.0-pre.7
