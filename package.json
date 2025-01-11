@@ -42,6 +42,7 @@
     "quickselect": "^3.0.0",
     "supercluster": "^8.0.1",
     "tinyqueue": "^3.0.0",
+    "versor": "^0.2.0",
     "vt-pbf": "^3.1.3"
   },
   "devDependencies": {
