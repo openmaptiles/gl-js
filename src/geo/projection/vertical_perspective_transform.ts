@@ -669,40 +669,24 @@ export class VerticalPerspectiveTransform implements ITransform {
         const sourceSurfaceVector = angularCoordinatesToSurfaceVector(sourceLngLat);
         const targetSurfaceVector = angularCoordinatesToSurfaceVector(targetLngLat);
 
-        const qCenter = quat.fromEuler(
-          createVec4f64(),
-          -this.center.lng,
-          -this.center.lat,
-          this.bearing
-        );
+        // centerQuat represent the rotation of the globe from the origin
+        const centerQuat = quat.fromEuler(createVec4f64(), -this.center.lng, -this.center.lat, this.bearing);
 
+        // We calculate the quaternion rotation that will bring the source point to the target point
+        // Note: quat.rotateTo from gl-matrix  is not used because it's not working for small angles
         const w = vec3.cross(createVec3f64(), sourceSurfaceVector, targetSurfaceVector);
         const l = Math.sqrt(vec3.dot(w, w));
-        const t =
-          Math.acos(Math.max(-1, Math.min(1, vec3.dot(sourceSurfaceVector, targetSurfaceVector)))) / 2;
+        const t = Math.acos(Math.max(-1, Math.min(1, vec3.dot(sourceSurfaceVector, targetSurfaceVector)))) / 2;
         const s = Math.sin(t); // t = θ / 2
 
-         const delta = l
-          ? quat.fromValues(
-            (w[1] / l) * s,
-            (-w[0] / l) * s,
-            (w[2] / l) * s,
-            Math.cos(t)
-          )
-          : quat.fromValues(0, 0, 0, 1);
+        const delta = l ? quat.fromValues((w[1] / l) * s, (-w[0] / l) * s, (w[2] / l) * s, Math.cos(t)) : quat.fromValues(0, 0, 0, 1);
 
-        const q1 = quat.multiply(createVec4f64(), qCenter, delta);
-        const [b, c, d, a] = q1;
+        const newCenterQuat = quat.multiply(createVec4f64(), centerQuat, delta);
+        const [b, c, d, a] = newCenterQuat;
 
-        const newCenterLng =
-          -(Math.atan2(2 * (a * b + c * d), 1 - 2 * (b * b + c * c)) * 180) /
-          Math.PI;
-        const newCenterLat =
-          -(Math.asin(Math.max(-1, Math.min(1, 2 * (a * c - d * b)))) * 180) /
-          Math.PI;
-        const newBearing =
-          (Math.atan2(2 * (a * d + b * c), 1 - 2 * (c * c + d * d)) * 180) /
-          Math.PI;
+        const newCenterLng = -(Math.atan2(2 * (a * b + c * d), 1 - 2 * (b * b + c * c)) * 180) / Math.PI;
+        const newCenterLat = -(Math.asin(Math.max(-1, Math.min(1, 2 * (a * c - d * b)))) * 180) / Math.PI;
+        const newBearing = (Math.atan2(2 * (a * d + b * c), 1 - 2 * (c * c + d * d)) * 180) / Math.PI;
 
         const oldLat = this.center.lat;
         this.setCenter(new LngLat(newCenterLng, newCenterLat));
