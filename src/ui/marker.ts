@@ -316,7 +316,10 @@ export class Marker extends Evented {
     addTo(map: Map): this {
         this.remove();
         this._map = map;
-        this._element.setAttribute('aria-label', map._getUIString('Marker.Title'));
+
+        if (!this._element.hasAttribute('aria-label')) {
+            this._element.setAttribute('aria-label', map._getUIString('Marker.Title'));
+        }
 
         map.getCanvasContainer().appendChild(this._element);
         map.on('move', this._update);

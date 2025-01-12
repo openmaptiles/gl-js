@@ -1,6 +1,9 @@
 ## main
 
 ### ✨ Features and improvements
+
+- Now only adds `aria-label` on the Marker's element if it does not already has one ([#5298](https://github.com/maplibre/maplibre-gl-js/pull/5298))
+
 - _...Add new stuff here..._
 
 ### 🐞 Bug fixes

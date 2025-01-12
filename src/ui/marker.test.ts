@@ -260,6 +260,18 @@ describe('marker', () => {
         expect(marker.getElement().getAttribute('aria-label')).toBe('alt title');
     });
 
+    test('Marker aria-label is not set if the element already has one', () => {
+        const map = createMap({locale: {'Marker.Title': 'alt title'}});
+        const customHtmlElement = document.createElement('div');
+        customHtmlElement.setAttribute('aria-label', 'custom aria label');
+
+        const markerWithHtmlElement = new Marker({
+            element: customHtmlElement
+        }).setLngLat([10, 10]).addTo(map);
+
+        expect(markerWithHtmlElement.getElement().getAttribute('aria-label')).toBe('custom aria label');
+    });
+
     test('Marker anchor defaults to center', () => {
         const map = createMap();
         const marker = new Marker()
