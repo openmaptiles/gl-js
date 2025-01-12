@@ -1,4 +1,4 @@
-import {type mat2, mat4, vec3, vec4} from 'gl-matrix';
+import {type mat2, mat4, vec3, vec4, quat} from 'gl-matrix';
 import {TransformHelper} from '../transform_helper';
 import {LngLat, type LngLatLike, earthRadius} from '../lng_lat';
 import {clamp, createIdentityMat4f32, createIdentityMat4f64, createMat4f64, createVec3f64, createVec4f64, differenceOfAnglesDegrees, MAX_VALID_LATITUDE, pointPlaneSignedDistance, warnOnce} from '../../util/util';
@@ -18,7 +18,6 @@ import type {IReadonlyTransform, ITransform} from '../transform_interface';
 import type {PaddingOptions} from '../edge_insets';
 import type {ProjectionData, ProjectionDataParams} from './projection_data';
 import type {CoveringTilesDetailsProvider} from './covering_tiles_details_provider';
-import versor from 'versor';
 
 /**
  * Describes the intersection of ray and sphere.
@@ -661,24 +660,52 @@ export class VerticalPerspectiveTransform implements ITransform {
      * Note: automatically adjusts zoom to keep planet size consistent
      * (same size before and after a {@link setLocationAtPoint} call).
      */
-    setLocationAtPoint(sourceLnglat: LngLat, targetPoint: Point): void {
+    setLocationAtPoint(sourceLngLat: LngLat, targetPoint: Point): void {
         const targetLngLat = this.unprojectScreenPoint(targetPoint);
         const reprojTargetPoint = this.locationToScreenPoint(targetLngLat);
         if (Math.abs(targetPoint.x - reprojTargetPoint.x) > 0.001 || Math.abs(targetPoint.y - reprojTargetPoint.y) > 0.001) {
             return; // The point is not on the planet
         }
+        const sourceSurfaceVector = angularCoordinatesToSurfaceVector(sourceLngLat);
+        const targetSurfaceVector = angularCoordinatesToSurfaceVector(targetLngLat);
 
-        const sourceCartesian = versor.cartesian([sourceLnglat.lng, sourceLnglat.lat]);
-        const targetCartesian = versor.cartesian([targetLngLat.lng, targetLngLat.lat]);
-        const delta = versor.delta(sourceCartesian, targetCartesian);
-        const centerQuaternion = versor([-this.center.lng, -this.center.lat, this.bearing]);
-        const newCenterQuaternion = versor.multiply(centerQuaternion, delta);
-        const [lambda, phi, gamma] = versor.rotation(newCenterQuaternion);
-        const newLng = - lambda;
-        const newLat = - phi;
-        const newBearing = gamma;
+        const qCenter = quat.fromEuler(
+          createVec4f64(),
+          -this.center.lng,
+          -this.center.lat,
+          this.bearing
+        );
+
+        const w = vec3.cross(createVec3f64(), sourceSurfaceVector, targetSurfaceVector);
+        const l = Math.sqrt(vec3.dot(w, w));
+        const t =
+          Math.acos(Math.max(-1, Math.min(1, vec3.dot(sourceSurfaceVector, targetSurfaceVector)))) / 2;
+        const s = Math.sin(t); // t = θ / 2
+
+         const delta = l
+          ? quat.fromValues(
+            (w[1] / l) * s,
+            (-w[0] / l) * s,
+            (w[2] / l) * s,
+            Math.cos(t)
+          )
+          : quat.fromValues(0, 0, 0, 1);
+
+        const q1 = quat.multiply(createVec4f64(), qCenter, delta);
+        const [b, c, d, a] = q1;
+
+        const newCenterLng =
+          -(Math.atan2(2 * (a * b + c * d), 1 - 2 * (b * b + c * c)) * 180) /
+          Math.PI;
+        const newCenterLat =
+          -(Math.asin(Math.max(-1, Math.min(1, 2 * (a * c - d * b)))) * 180) /
+          Math.PI;
+        const newBearing =
+          (Math.atan2(2 * (a * d + b * c), 1 - 2 * (c * c + d * d)) * 180) /
+          Math.PI;
+
         const oldLat = this.center.lat;
-        this.setCenter(new LngLat(newLng, newLat));
+        this.setCenter(new LngLat(newCenterLng, newCenterLat));
         this.setBearing(newBearing);
         this.setZoom(this.zoom + getZoomAdjustment(oldLat, this.center.lat));
     }
