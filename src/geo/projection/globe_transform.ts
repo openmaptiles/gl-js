@@ -404,13 +404,13 @@ export class GlobeTransform implements ITransform {
      * Note: automatically adjusts zoom to keep planet size consistent
      * (same size before and after a {@link setLocationAtPoint} call).
      */
-    setLocationAtPoint(lnglat: LngLat, point: Point, keeBearing = false): void {
+    setLocationAtPoint(lnglat: LngLat, point: Point, keepBearingFixed = true): void {
         if (!this.isGlobeRendering) {
             this._mercatorTransform.setLocationAtPoint(lnglat, point);
             this.apply(this._mercatorTransform);
             return;
         }
-        this._verticalPerspectiveTransform.setLocationAtPoint(lnglat, point, keeBearing);
+        this._verticalPerspectiveTransform.setLocationAtPoint(lnglat, point, keepBearingFixed);
         this.apply(this._verticalPerspectiveTransform);
         return;
     }
