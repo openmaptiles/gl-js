@@ -1,7 +1,7 @@
 import {type mat2, mat4, vec3, vec4, quat} from 'gl-matrix';
 import {TransformHelper} from '../transform_helper';
 import {LngLat, type LngLatLike, earthRadius} from '../lng_lat';
-import {clamp, createIdentityMat4f32, createIdentityMat4f64, createMat4f64, createVec3f64, createVec4f64, differenceOfAnglesDegrees, MAX_VALID_LATITUDE, pointPlaneSignedDistance, warnOnce} from '../../util/util';
+import {angleToRotateBetweenVectors2D, clamp, createIdentityMat4f32, createIdentityMat4f64, createMat4f64, createVec3f64, createVec4f64, differenceOfAnglesDegrees, distanceOfAnglesRadians, MAX_VALID_LATITUDE, pointPlaneSignedDistance, warnOnce} from '../../util/util';
 
 import {OverscaledTileID, UnwrappedTileID, type CanonicalTileID} from '../../source/tile_id';
 import Point from '@mapbox/point-geometry';
@@ -660,38 +660,132 @@ export class VerticalPerspectiveTransform implements ITransform {
      * Note: automatically adjusts zoom to keep planet size consistent
      * (same size before and after a {@link setLocationAtPoint} call).
      */
-    setLocationAtPoint(sourceLngLat: LngLat, targetPoint: Point): void {
-        const targetLngLat = this.unprojectScreenPoint(targetPoint);
-        const reprojTargetPoint = this.locationToScreenPoint(targetLngLat);
-        if (Math.abs(targetPoint.x - reprojTargetPoint.x) > 0.001 || Math.abs(targetPoint.y - reprojTargetPoint.y) > 0.001) {
-            return; // The point is not on the planet
+    setLocationAtPoint(lngLat: LngLat, point: Point, keepBearing = true): void {
+        // This returns some fake coordinates for pixels that do not lie on the planet.
+        // Whatever uses this `setLocationAtPoint` function will need to account for that.
+        const pointLngLat = this.unprojectScreenPoint(point);
+        const vecToPixelCurrent = angularCoordinatesToSurfaceVector(pointLngLat);
+        const vecToTarget = angularCoordinatesToSurfaceVector(lngLat);
+
+        if (keepBearing) {
+            const zero = createVec3f64();
+            vec3.zero(zero);
+
+            const rotatedPixelVector = createVec3f64();
+            vec3.rotateY(rotatedPixelVector, vecToPixelCurrent, zero, -this.center.lng * Math.PI / 180.0);
+            vec3.rotateX(rotatedPixelVector, rotatedPixelVector, zero, this.center.lat * Math.PI / 180.0);
+
+            // We are looking for the lng,lat that will rotate `vecToTarget`
+            // so that it is equal to `rotatedPixelVector`.
+
+            // The second rotation around X axis cannot change the X component,
+            // so we first must find the longitude such that rotating `vecToTarget` with it
+            // will place it so its X component is equal to X component of `rotatedPixelVector`.
+            // There will exist zero, one or two longitudes that satisfy this.
+
+            //      x  |
+            //     /   |
+            //    /    | the line is the target X - rotatedPixelVector.x
+            //   /     | the x is vecToTarget projected to x,z plane
+            //  .      | the dot is origin
+            //
+            // We need to rotate vecToTarget so that it intersects the line.
+            // If vecToTarget is shorter than the distance to the line from origin, it is impossible.
+
+            // Otherwise, we compute the intersection of the line with a ring with radius equal to
+            // length of vecToTarget projected to XZ plane.
+
+            const vecToTargetXZLengthSquared = vecToTarget[0] * vecToTarget[0] + vecToTarget[2] * vecToTarget[2];
+            const targetXSquared = rotatedPixelVector[0] * rotatedPixelVector[0];
+            if (vecToTargetXZLengthSquared < targetXSquared) {
+                // Zero solutions - setLocationAtPoint is impossible.
+                return;
+            }
+
+            // The intersection's Z coordinates
+            const intersectionA = Math.sqrt(vecToTargetXZLengthSquared - targetXSquared);
+            const intersectionB = -intersectionA; // the second solution
+
+            const lngA = angleToRotateBetweenVectors2D(vecToTarget[0], vecToTarget[2], rotatedPixelVector[0], intersectionA);
+            const lngB = angleToRotateBetweenVectors2D(vecToTarget[0], vecToTarget[2], rotatedPixelVector[0], intersectionB);
+
+            const vecToTargetLngA = createVec3f64();
+            vec3.rotateY(vecToTargetLngA, vecToTarget, zero, -lngA);
+            const latA = angleToRotateBetweenVectors2D(vecToTargetLngA[1], vecToTargetLngA[2], rotatedPixelVector[1], rotatedPixelVector[2]);
+            const vecToTargetLngB = createVec3f64();
+            vec3.rotateY(vecToTargetLngB, vecToTarget, zero, -lngB);
+            const latB = angleToRotateBetweenVectors2D(vecToTargetLngB[1], vecToTargetLngB[2], rotatedPixelVector[1], rotatedPixelVector[2]);
+            // Is at least one of the needed latitudes valid?
+
+            const limit = Math.PI * 0.5;
+
+            const isValidA = latA >= -limit && latA <= limit;
+            const isValidB = latB >= -limit && latB <= limit;
+
+            let validLng: number;
+            let validLat: number;
+            if (isValidA && isValidB) {
+                // Pick the solution that is closer to current map center.
+                const centerLngRadians = this.center.lng * Math.PI / 180.0;
+                const centerLatRadians = this.center.lat * Math.PI / 180.0;
+                const lngDistA = distanceOfAnglesRadians(lngA, centerLngRadians);
+                const latDistA = distanceOfAnglesRadians(latA, centerLatRadians);
+                const lngDistB = distanceOfAnglesRadians(lngB, centerLngRadians);
+                const latDistB = distanceOfAnglesRadians(latB, centerLatRadians);
+
+                if ((lngDistA + latDistA) < (lngDistB + latDistB)) {
+                    validLng = lngA;
+                    validLat = latA;
+                } else {
+                    validLng = lngB;
+                    validLat = latB;
+                }
+            } else if (isValidA) {
+                validLng = lngA;
+                validLat = latA;
+            } else if (isValidB) {
+                validLng = lngB;
+                validLat = latB;
+            } else {
+                // No solution.
+                return;
+            }
+
+            const newLng = validLng / Math.PI * 180;
+            const newLat = validLat / Math.PI * 180;
+            const oldLat = this.center.lat;
+            this.setCenter(new LngLat(newLng, clamp(newLat, -90, 90)));
+            this.setZoom(this.zoom + getZoomAdjustment(oldLat, this.center.lat));
+
+        } else {
+            // This is a version of the above code, based on quaternion, changing also the bearing which allows
+            // some solutions that are not possible with the above code.
+            // centerQuat represent the rotation of the globe from the origin
+            const centerQuat = quat.fromEuler(createVec4f64(), -this.center.lng, -this.center.lat, this.bearing);
+
+            // We calculate the quaternion rotation that will bring the source point to the target point
+            // Note: quat.rotateTo from gl-matrix  is not used because it's not working for small angles
+            const w = vec3.cross(createVec3f64(), vecToTarget, vecToPixelCurrent);
+            const l = Math.sqrt(vec3.dot(w, w));
+            const t = Math.acos(Math.max(-1, Math.min(1, vec3.dot(vecToTarget, vecToPixelCurrent)))) / 2;
+            const s = Math.sin(t); // t = θ / 2
+
+            const delta = l ? quat.fromValues((w[1] / l) * s, (-w[0] / l) * s, (w[2] / l) * s, Math.cos(t)) : quat.fromValues(0, 0, 0, 1);
+
+            const newCenterQuat = quat.multiply(createVec4f64(), centerQuat, delta);
+            const [b, c, d, a] = newCenterQuat;
+
+            const newCenterLng = -(Math.atan2(2 * (a * b + c * d), 1 - 2 * (b * b + c * c)) * 180) / Math.PI;
+            const newCenterLat = -(Math.asin(Math.max(-1, Math.min(1, 2 * (a * c - d * b)))) * 180) / Math.PI;
+            const newBearing = (Math.atan2(2 * (a * d + b * c), 1 - 2 * (c * c + d * d)) * 180) / Math.PI;
+
+            const oldLat = this.center.lat;
+            this.setCenter(new LngLat(newCenterLng, newCenterLat));
+            this.setBearing(newBearing);
+            // Redo a pass for increased precision
+            this.setLocationAtPoint(lngLat, point, true);
+            this.setZoom(this.zoom + getZoomAdjustment(oldLat, this.center.lat));
         }
-        const sourceSurfaceVector = angularCoordinatesToSurfaceVector(sourceLngLat);
-        const targetSurfaceVector = angularCoordinatesToSurfaceVector(targetLngLat);
-
-        // centerQuat represent the rotation of the globe from the origin
-        const centerQuat = quat.fromEuler(createVec4f64(), -this.center.lng, -this.center.lat, this.bearing);
-
-        // We calculate the quaternion rotation that will bring the source point to the target point
-        // Note: quat.rotateTo from gl-matrix  is not used because it's not working for small angles
-        const w = vec3.cross(createVec3f64(), sourceSurfaceVector, targetSurfaceVector);
-        const l = Math.sqrt(vec3.dot(w, w));
-        const t = Math.acos(Math.max(-1, Math.min(1, vec3.dot(sourceSurfaceVector, targetSurfaceVector)))) / 2;
-        const s = Math.sin(t); // t = θ / 2
-
-        const delta = l ? quat.fromValues((w[1] / l) * s, (-w[0] / l) * s, (w[2] / l) * s, Math.cos(t)) : quat.fromValues(0, 0, 0, 1);
-
-        const newCenterQuat = quat.multiply(createVec4f64(), centerQuat, delta);
-        const [b, c, d, a] = newCenterQuat;
-
-        const newCenterLng = -(Math.atan2(2 * (a * b + c * d), 1 - 2 * (b * b + c * c)) * 180) / Math.PI;
-        const newCenterLat = -(Math.asin(Math.max(-1, Math.min(1, 2 * (a * c - d * b)))) * 180) / Math.PI;
-        const newBearing = (Math.atan2(2 * (a * d + b * c), 1 - 2 * (c * c + d * d)) * 180) / Math.PI;
-
-        const oldLat = this.center.lat;
-        this.setCenter(new LngLat(newCenterLng, newCenterLat));
-        this.setBearing(newBearing);
-        this.setZoom(this.zoom + getZoomAdjustment(oldLat, this.center.lat));
     }
 
     locationToScreenPoint(lnglat: LngLat, terrain?: Terrain): Point {
@@ -762,6 +856,28 @@ export class VerticalPerspectiveTransform implements ITransform {
         ray[0] = pos[0] - this._cameraPosition[0];
         ray[1] = pos[1] - this._cameraPosition[1];
         ray[2] = pos[2] - this._cameraPosition[2];
+        const rayNormalized: vec3 = createVec3f64();
+        vec3.normalize(rayNormalized, ray);
+        return rayNormalized;
+    }
+
+    /**
+     * Computes normalized direction of a ray from the center of the globe to the given screen pixel.
+     */
+    getRayDirectionFromPixelToCenter(p: Point): vec3 {
+        const pos = createVec4f64();
+        pos[0] = (p.x / this.width) * 2.0 - 1.0;
+        pos[1] = ((p.y / this.height) * 2.0 - 1.0) * -1.0;
+        pos[2] = 1;
+        pos[3] = 1;
+        vec4.transformMat4(pos, pos, this._globeViewProjMatrixNoCorrectionInverted);
+        pos[0] /= pos[3];
+        pos[1] /= pos[3];
+        pos[2] /= pos[3];
+        const ray = createVec3f64();
+        ray[0] = pos[0] - this.centerPoint[0];
+        ray[1] = pos[1] - this.centerPoint[1];
+        ray[2] = pos[2] - this.centerPoint[2];
         const rayNormalized: vec3 = createVec3f64();
         vec3.normalize(rayNormalized, ray);
         return rayNormalized;
