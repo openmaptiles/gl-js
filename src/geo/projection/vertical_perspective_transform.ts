@@ -50,90 +50,119 @@ export class VerticalPerspectiveTransform implements ITransform {
     get pixelsToClipSpaceMatrix(): mat4 {
         return this._helper.pixelsToClipSpaceMatrix;
     }
+
     get clipSpaceToPixelsMatrix(): mat4 {
         return this._helper.clipSpaceToPixelsMatrix;
     }
+
     get pixelsToGLUnits(): [number, number] {
         return this._helper.pixelsToGLUnits;
     }
+
     get centerOffset(): Point {
         return this._helper.centerOffset;
     }
+
     get size(): Point {
         return this._helper.size;
     }
+
     get rotationMatrix(): mat2 {
         return this._helper.rotationMatrix;
     }
+
     get centerPoint(): Point {
         return this._helper.centerPoint;
     }
+
     get pixelsPerMeter(): number {
         return this._helper.pixelsPerMeter;
     }
+
     setMinZoom(zoom: number): void {
         this._helper.setMinZoom(zoom);
     }
+
     setMaxZoom(zoom: number): void {
         this._helper.setMaxZoom(zoom);
     }
+
     setMinPitch(pitch: number): void {
         this._helper.setMinPitch(pitch);
     }
+
     setMaxPitch(pitch: number): void {
         this._helper.setMaxPitch(pitch);
     }
+
     setRenderWorldCopies(renderWorldCopies: boolean): void {
         this._helper.setRenderWorldCopies(renderWorldCopies);
     }
+
     setBearing(bearing: number): void {
         this._helper.setBearing(bearing);
     }
+
     setPitch(pitch: number): void {
         this._helper.setPitch(pitch);
     }
+
     setRoll(roll: number): void {
         this._helper.setRoll(roll);
     }
+
     setFov(fov: number): void {
         this._helper.setFov(fov);
     }
+
     setZoom(zoom: number): void {
         this._helper.setZoom(zoom);
     }
+
     setCenter(center: LngLat): void {
         this._helper.setCenter(center);
     }
+
     setElevation(elevation: number): void {
         this._helper.setElevation(elevation);
     }
+
     setMinElevationForCurrentTile(elevation: number): void {
         this._helper.setMinElevationForCurrentTile(elevation);
     }
+
     setPadding(padding: PaddingOptions): void {
         this._helper.setPadding(padding);
     }
+
     interpolatePadding(start: PaddingOptions, target: PaddingOptions, t: number): void {
         return this._helper.interpolatePadding(start, target, t);
     }
+
     isPaddingEqual(padding: PaddingOptions): boolean {
         return this._helper.isPaddingEqual(padding);
     }
+
     resize(width: number, height: number): void {
         this._helper.resize(width, height);
     }
+
     getMaxBounds(): LngLatBounds {
         return this._helper.getMaxBounds();
     }
+
     setMaxBounds(bounds?: LngLatBounds): void {
         this._helper.setMaxBounds(bounds);
     }
+
     overrideNearFarZ(nearZ: number, farZ: number): void {
         this._helper.overrideNearFarZ(nearZ, farZ);
     }
+
     clearNearFarZOverride(): void {
         this._helper.clearNearFarZOverride();
     }
+
     getCameraQueryGeometry(queryGeometry: Point[]): Point[] {
         return this._helper.getCameraQueryGeometry(this.getCameraPoint(), queryGeometry);
     }
@@ -141,96 +170,127 @@ export class VerticalPerspectiveTransform implements ITransform {
     get tileSize(): number {
         return this._helper.tileSize;
     }
+
     get tileZoom(): number {
         return this._helper.tileZoom;
     }
+
     get scale(): number {
         return this._helper.scale;
     }
+
     get worldSize(): number {
         return this._helper.worldSize;
     }
+
     get width(): number {
         return this._helper.width;
     }
+
     get height(): number {
         return this._helper.height;
     }
+
     get lngRange(): [number, number] {
         return this._helper.lngRange;
     }
+
     get latRange(): [number, number] {
         return this._helper.latRange;
     }
+
     get minZoom(): number {
         return this._helper.minZoom;
     }
+
     get maxZoom(): number {
         return this._helper.maxZoom;
     }
+
     get zoom(): number {
         return this._helper.zoom;
     }
+
     get center(): LngLat {
         return this._helper.center;
     }
+
     get minPitch(): number {
         return this._helper.minPitch;
     }
+
     get maxPitch(): number {
         return this._helper.maxPitch;
     }
+
     get pitch(): number {
         return this._helper.pitch;
     }
+
     get pitchInRadians(): number {
         return this._helper.pitchInRadians;
     }
+
     get roll(): number {
         return this._helper.roll;
     }
+
     get rollInRadians(): number {
         return this._helper.rollInRadians;
     }
+
     get bearing(): number {
         return this._helper.bearing;
     }
+
     get bearingInRadians(): number {
         return this._helper.bearingInRadians;
     }
+
     get fov(): number {
         return this._helper.fov;
     }
+
     get fovInRadians(): number {
         return this._helper.fovInRadians;
     }
+
     get elevation(): number {
         return this._helper.elevation;
     }
+
     get minElevationForCurrentTile(): number {
         return this._helper.minElevationForCurrentTile;
     }
+
     get padding(): PaddingOptions {
         return this._helper.padding;
     }
+
     get unmodified(): boolean {
         return this._helper.unmodified;
     }
+
     get renderWorldCopies(): boolean {
         return this._helper.renderWorldCopies;
     }
+
     public get nearZ(): number {
         return this._helper.nearZ;
     }
+
     public get farZ(): number {
         return this._helper.farZ;
     }
+
     public get autoCalculateNearFarZ(): boolean {
         return this._helper.autoCalculateNearFarZ;
     }
+
     setTransitionState(_value: number): void {
         // Do nothing
     }
+
     //
     // Implementation of globe transform
     //
@@ -255,8 +315,12 @@ export class VerticalPerspectiveTransform implements ITransform {
     public constructor() {
 
         this._helper = new TransformHelper({
-            calcMatrices: () => { this._calcMatrices(); },
-            getConstrained: (center, zoom) => { return this.getConstrained(center, zoom); }
+            calcMatrices: () => {
+                this._calcMatrices();
+            },
+            getConstrained: (center, zoom) => {
+                return this.getConstrained(center, zoom);
+            }
         });
         this._coveringTilesDetailsProvider = new GlobeCoveringTilesDetailsProvider();
     }
@@ -272,11 +336,17 @@ export class VerticalPerspectiveTransform implements ITransform {
         this._helper.apply(that);
     }
 
-    public get projectionMatrix(): mat4 { return this._projectionMatrix; }
+    public get projectionMatrix(): mat4 {
+        return this._projectionMatrix;
+    }
 
-    public get modelViewProjectionMatrix(): mat4 { return this._globeViewProjMatrixNoCorrection; }
+    public get modelViewProjectionMatrix(): mat4 {
+        return this._globeViewProjMatrixNoCorrection;
+    }
 
-    public get inverseProjectionMatrix(): mat4 { return this._globeProjMatrixInverted; }
+    public get inverseProjectionMatrix(): mat4 {
+        return this._globeProjMatrixInverted;
+    }
 
     public get cameraPosition(): vec3 {
         // Return a copy - don't let outside code mutate our precomputed camera position.
@@ -520,9 +590,11 @@ export class VerticalPerspectiveTransform implements ITransform {
     getCameraFrustum(): Frustum {
         return this._cachedFrustum;
     }
+
     getClippingPlane(): vec4 | null {
         return this._cachedClippingPlane;
     }
+
     getCoveringTilesDetailsProvider(): CoveringTilesDetailsProvider {
         return this._coveringTilesDetailsProvider;
     }
@@ -660,14 +732,14 @@ export class VerticalPerspectiveTransform implements ITransform {
      * Note: automatically adjusts zoom to keep planet size consistent
      * (same size before and after a {@link setLocationAtPoint} call).
      */
-    setLocationAtPoint(lngLat: LngLat, point: Point, keepBearing = true): void {
+    setLocationAtPoint(lngLat: LngLat, point: Point, keepBearingFixed = true): void {
         // This returns some fake coordinates for pixels that do not lie on the planet.
         // Whatever uses this `setLocationAtPoint` function will need to account for that.
         const pointLngLat = this.unprojectScreenPoint(point);
         const vecToPixelCurrent = angularCoordinatesToSurfaceVector(pointLngLat);
         const vecToTarget = angularCoordinatesToSurfaceVector(lngLat);
 
-        if (keepBearing) {
+        if (keepBearingFixed) {
             const zero = createVec3f64();
             vec3.zero(zero);
 
@@ -782,8 +854,6 @@ export class VerticalPerspectiveTransform implements ITransform {
             const oldLat = this.center.lat;
             this.setCenter(new LngLat(newCenterLng, newCenterLat));
             this.setBearing(newBearing);
-            // Redo a pass for increased precision
-            this.setLocationAtPoint(lngLat, point, true);
             this.setZoom(this.zoom + getZoomAdjustment(oldLat, this.center.lat));
         }
     }
@@ -1034,7 +1104,10 @@ export class VerticalPerspectiveTransform implements ITransform {
     }
 
     getProjectionDataForCustomLayer(applyGlobeMatrix: boolean = true): ProjectionData {
-        const globeData = this.getProjectionData({overscaledTileID: new OverscaledTileID(0, 0, 0, 0, 0), applyGlobeMatrix});
+        const globeData = this.getProjectionData({
+            overscaledTileID: new OverscaledTileID(0, 0, 0, 0, 0),
+            applyGlobeMatrix
+        });
         globeData.tileMercatorCoords = [0, 0, 1, 1];
         return globeData;
     }
