@@ -3,7 +3,7 @@ import puppeteer, {type Page, type Browser} from 'puppeteer';
 import st from 'st';
 import http, {type Server} from 'http';
 import type {AddressInfo} from 'net';
-import type {default as MapLibreGL, Map} from '../../../dist/maplibre-gl';
+import type {default as MapLibreGL, Map, LngLatBounds} from '../../../dist/maplibre-gl';
 import {sleep} from '../../../src/util/test/util';
 
 const testWidth = 800;
@@ -448,4 +448,214 @@ describe('Browser tests', () => {
         expect(center.lng).toBeCloseTo(11.39770);
         expect(center.lat).toBeCloseTo(47.29960);
     });
+
+    test('GeoJSONSource#getBounds: FeatureCollection', async () => {
+        let testbounds: LngLatBounds;
+        const bounds = await page.evaluate(async () => {
+            testbounds = new maplibregl.LngLatBounds([-122.493782, 37.828802, -122.483396, 37.833818]);
+            const map = new maplibregl.Map({
+                container: 'map',
+                style: 'https://demotiles.maplibre.org/style.json',
+                center: [10, 10],
+                zoom: 10
+            });
+            map.on('load', () => {
+                map.addSource('testid', {
+                    type: 'geojson',
+                    data: {
+                        'type': 'FeatureCollection',
+                        'features': [{
+                            'type': 'Feature',
+                            'properties': {},
+                            'geometry': {
+                                'type': 'LineString',
+                                'coordinates': [
+                                    [-122.483696, 37.833818],
+                                    [-122.483482, 37.833174],
+                                    [-122.483396, 37.832700],
+                                    [-122.483568, 37.832056],
+                                    [-122.484040, 37.831141],
+                                    [-122.484040, 37.830497],
+                                    [-122.483482, 37.829920],
+                                    [-122.483568, 37.829548],
+                                    [-122.485070, 37.829446],
+                                    [-122.486100, 37.828802],
+                                    [-122.486958, 37.829310],
+                                    [-122.487001, 37.830802],
+                                    [-122.487516, 37.831683],
+                                    [-122.488031, 37.832158],
+                                    [-122.488889, 37.832971],
+                                    [-122.489876, 37.832632],
+                                    [-122.490434, 37.832937],
+                                    [-122.491250, 37.832429],
+                                    [-122.491636, 37.832564],
+                                    [-122.492237, 37.833378],
+                                    [-122.493782, 37.833683]
+                                ]
+                            }
+                        }]
+                    }
+                });
+                const testsource: maplibregl.GeoJSONSource = map.getSource('testid');
+                return testsource.getBounds();
+            });
+        });
+        expect(bounds).toEqual(testbounds);
+    });
+
+    test('GeoJSONSource#getBounds: Feature', async () => {
+        let testbounds: LngLatBounds;
+        const bounds = await page.evaluate(async () => {
+            testbounds = new maplibregl.LngLatBounds([-122.493782, 37.828802, -122.483396, 37.833818]);
+            const map = new maplibregl.Map({
+                container: 'map',
+                style: 'https://demotiles.maplibre.org/style.json',
+                center: [10, 10],
+                zoom: 10
+            });
+            map.on('load', () => {
+                map.addSource('testid', {
+                    type: 'geojson',
+                    data: {
+                        'type': 'Feature',
+                        'properties': {},
+                        'geometry': {
+                            'type': 'LineString',
+                            'coordinates': [
+                                [-122.483696, 37.833818],
+                                [-122.483482, 37.833174],
+                                [-122.483396, 37.832700],
+                                [-122.483568, 37.832056],
+                                [-122.484040, 37.831141],
+                                [-122.484040, 37.830497],
+                                [-122.483482, 37.829920],
+                                [-122.483568, 37.829548],
+                                [-122.485070, 37.829446],
+                                [-122.486100, 37.828802],
+                                [-122.486958, 37.829310],
+                                [-122.487001, 37.830802],
+                                [-122.487516, 37.831683],
+                                [-122.488031, 37.832158],
+                                [-122.488889, 37.832971],
+                                [-122.489876, 37.832632],
+                                [-122.490434, 37.832937],
+                                [-122.491250, 37.832429],
+                                [-122.491636, 37.832564],
+                                [-122.492237, 37.833378],
+                                [-122.493782, 37.833683]
+                            ]
+                        }
+                    }
+                });
+                const testsource: maplibregl.GeoJSONSource = map.getSource('testid');
+                return testsource.getBounds();
+            });
+        });
+        expect(bounds).toEqual(testbounds);
+    });
+
+    test('GeoJSONSource#getBounds: Geometry', async () => {
+        let testbounds: LngLatBounds;
+        const bounds = await page.evaluate(async () => {
+            testbounds = new maplibregl.LngLatBounds([-122.493782, 37.828802, -122.483396, 37.833818]);
+            const map = new maplibregl.Map({
+                container: 'map',
+                style: 'https://demotiles.maplibre.org/style.json',
+                center: [10, 10],
+                zoom: 10
+            });
+            map.on('load', () => {
+                map.addSource('testid', {
+                    type: 'geojson',
+                    data: {
+                        'type': 'LineString',
+                        'coordinates': [
+                            [-122.483696, 37.833818],
+                            [-122.483482, 37.833174],
+                            [-122.483396, 37.832700],
+                            [-122.483568, 37.832056],
+                            [-122.484040, 37.831141],
+                            [-122.484040, 37.830497],
+                            [-122.483482, 37.829920],
+                            [-122.483568, 37.829548],
+                            [-122.485070, 37.829446],
+                            [-122.486100, 37.828802],
+                            [-122.486958, 37.829310],
+                            [-122.487001, 37.830802],
+                            [-122.487516, 37.831683],
+                            [-122.488031, 37.832158],
+                            [-122.488889, 37.832971],
+                            [-122.489876, 37.832632],
+                            [-122.490434, 37.832937],
+                            [-122.491250, 37.832429],
+                            [-122.491636, 37.832564],
+                            [-122.492237, 37.833378],
+                            [-122.493782, 37.833683]
+                        ]
+                    }
+                });
+                const testsource: maplibregl.GeoJSONSource = map.getSource('testid');
+                return testsource.getBounds();
+            });
+        });
+        expect(bounds).toEqual(testbounds);
+    });
+
+    test('GeoJSONSource#getBounds: GeometryCollection', async () => {
+        let testbounds: LngLatBounds;
+        const bounds = await page.evaluate(async () => {
+            testbounds = new maplibregl.LngLatBounds([-122.493782, 37.828802, -122.483396, 37.833818]);
+            const map = new maplibregl.Map({
+                container: 'map',
+                style: 'https://demotiles.maplibre.org/style.json',
+                center: [10, 10],
+                zoom: 10
+            });
+            map.on('load', () => {
+                map.addSource('testid', {
+                    type: 'geojson',
+                    data: {
+                        'type': 'GeometryCollection',
+                        'geometries': [
+                            {
+                                'type': 'LineString',
+                                'coordinates': [
+                                    [-122.483696, 37.833818],
+                                    [-122.483482, 37.833174],
+                                    [-122.483396, 37.832700],
+                                    [-122.483568, 37.832056],
+                                    [-122.484040, 37.831141],
+                                    [-122.484040, 37.830497],
+                                    [-122.483482, 37.829920],
+                                    [-122.483568, 37.829548],
+                                    [-122.485070, 37.829446],
+                                    [-122.486100, 37.828802]
+
+                                ]
+                            },
+                            {
+                                'type': 'LineString',
+                                'coordinates': [
+                                    [-122.486958, 37.829310],
+                                    [-122.487001, 37.830802],
+                                    [-122.487516, 37.831683],
+                                    [-122.488031, 37.832158],
+                                    [-122.488889, 37.832971],
+                                    [-122.489876, 37.832632],
+                                    [-122.490434, 37.832937],
+                                    [-122.491250, 37.832429],
+                                    [-122.491636, 37.832564],
+                                    [-122.492237, 37.833378],
+                                    [-122.493782, 37.833683]
+                                ]
+                            }
+                        ]}
+                });
+                const testsource: maplibregl.GeoJSONSource = map.getSource('testid');
+                return testsource.getBounds();
+            });
+        });
+        expect(bounds).toEqual(testbounds);
+    });
+
 });

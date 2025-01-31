@@ -2,6 +2,7 @@
 
 ### ✨ Features and improvements
 
+- Added `getBounds()` method to `GeoJSONSource` ([#5403](https://github.com/maplibre/maplibre-gl-js/pull/5403))
 - _...Add new stuff here..._
 
 ### 🐞 Bug fixes
