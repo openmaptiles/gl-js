@@ -10,6 +10,9 @@ import type {FitBoundsOptions} from '../camera';
 import type {IControl} from './control';
 import {LngLatBounds} from '../../geo/lng_lat_bounds';
 
+import * as turf from '@turf/circle';
+import {type GeoJSONSource} from '../../source/geojson_source';
+
 /**
  * The {@link GeolocateControl} options object
  */
@@ -242,7 +245,6 @@ export class GeolocateControl extends Evented implements IControl {
     options: GeolocateControlOptions;
     _container: HTMLElement;
     _dotElement: HTMLElement;
-    _circleElement: HTMLElement;
     _geolocateButton: HTMLButtonElement;
     _geolocationWatchID: number;
     _timeoutId: ReturnType<typeof setTimeout>;
@@ -265,7 +267,7 @@ export class GeolocateControl extends Evented implements IControl {
     _watchState: 'OFF' | 'ACTIVE_LOCK' | 'WAITING_ACTIVE' | 'ACTIVE_ERROR' | 'BACKGROUND' | 'BACKGROUND_ERROR';
     _lastKnownPosition: any;
     _userLocationDotMarker: Marker;
-    _accuracyCircleMarker: Marker;
+    _accuracyCirclePolygon: any;
     _accuracy: number;
     _setup: boolean; // set to true once the control has been setup
 
@@ -298,12 +300,15 @@ export class GeolocateControl extends Evented implements IControl {
         if (this.options.showUserLocation && this._userLocationDotMarker) {
             this._userLocationDotMarker.remove();
         }
-        if (this.options.showAccuracyCircle && this._accuracyCircleMarker) {
-            this._accuracyCircleMarker.remove();
+
+        if (this.options.showAccuracyCircle && this._accuracyCirclePolygon) {
+            if (this._map.loaded() && this._map.isStyleLoaded()) {
+                this._map.removeLayer('accuracy-circle');
+                this._map.removeSource('accuracy-circle');
+            }
         }
 
         DOM.remove(this._container);
-        this._map.off('zoom', this._onZoom);
         this._map = undefined;
         numberOfWatches = 0;
         noTimeout = false;
@@ -447,32 +452,46 @@ export class GeolocateControl extends Evented implements IControl {
     _updateMarker = (position?: GeolocationPosition | null) => {
         if (position) {
             const center = new LngLat(position.coords.longitude, position.coords.latitude);
-            this._accuracyCircleMarker.setLngLat(center).addTo(this._map);
             this._userLocationDotMarker.setLngLat(center).addTo(this._map);
             this._accuracy = position.coords.accuracy;
             if (this.options.showUserLocation && this.options.showAccuracyCircle) {
-                this._updateCircleRadius();
+
+                this._accuracyCirclePolygon = turf.circle([position.coords.longitude, position.coords.latitude],  position.coords.accuracy, {steps: 64,
+                    units: 'meters'});
+
+                if (this._map.getSource('accuracy-circle')) {
+                    const geoJSONSource = this._map.getSource('accuracy-circle') as GeoJSONSource;
+                    geoJSONSource.setData({
+                        'type': 'FeatureCollection',
+                        'features': [this._accuracyCirclePolygon]
+                    });
+                } else {
+                    if (this._map.loaded() && this._map.isStyleLoaded()) {
+                        this._map.addSource('accuracy-circle', {
+                            type: 'geojson',
+                            data: {
+                                'type': 'FeatureCollection',
+                                'features': [this._accuracyCirclePolygon]
+                            }
+                        });
+                        this._map.addLayer({
+                            id: 'accuracy-circle',
+                            type: 'fill',
+                            source: 'accuracy-circle',
+                            paint: {
+                                'fill-color': '#8CCFFF',
+                                'fill-opacity': 0.5
+                            }
+                        });
+                    }
+                }
             }
         } else {
             this._userLocationDotMarker.remove();
-            this._accuracyCircleMarker.remove();
-        }
-    };
-
-    _updateCircleRadius() {
-        const bounds = this._map.getBounds();
-        const southEastPoint = bounds.getSouthEast();
-        const northEastPoint = bounds.getNorthEast();
-        const mapHeightInMeters = southEastPoint.distanceTo(northEastPoint);
-        const mapHeightInPixels = this._map._container.clientHeight;
-        const circleDiameter = Math.ceil(2 * (this._accuracy / (mapHeightInMeters / mapHeightInPixels)));
-        this._circleElement.style.width = `${circleDiameter}px`;
-        this._circleElement.style.height = `${circleDiameter}px`;
-    }
-
-    _onZoom = () => {
-        if (this.options.showUserLocation && this.options.showAccuracyCircle) {
-            this._updateCircleRadius();
+            if (this._map.loaded() && this._map.isStyleLoaded()) {
+                this._map.removeLayer('accuracy-circle');
+                this._map.removeSource('accuracy-circle');
+            }
         }
     };
 
@@ -568,12 +587,7 @@ export class GeolocateControl extends Evented implements IControl {
 
             this._userLocationDotMarker = new Marker({element: this._dotElement});
 
-            this._circleElement = DOM.create('div', 'maplibregl-user-location-accuracy-circle');
-            this._accuracyCircleMarker = new Marker({element: this._circleElement, pitchAlignment: 'map'});
-
             if (this.options.trackUserLocation) this._watchState = 'OFF';
-
-            this._map.on('zoom', this._onZoom);
         }
 
         this._geolocateButton.addEventListener('click', () => this.trigger());

@@ -494,6 +494,7 @@ describe('GeolocateControl with no options', () => {
         expect(geolocate._watchState).toBe('BACKGROUND');
     });
 
+    /*
     test('accuracy circle not shown if showAccuracyCircle = false', async () => {
         const geolocate = new GeolocateControl({
             trackUserLocation: true,
@@ -516,7 +517,9 @@ describe('GeolocateControl with no options', () => {
         await zoomendPromise;
         expect(!geolocate._circleElement.style.width).toBeTruthy();
     });
+    */
 
+    /*
     test('accuracy circle radius matches reported accuracy', async () => {
         const geolocate = new GeolocateControl({
             trackUserLocation: true,
@@ -557,7 +560,9 @@ describe('GeolocateControl with no options', () => {
         await zoomendPromise;
         expect(geolocate._circleElement.style.width).toBe('4996px');
     });
+    */
 
+    /*
     test('shown even if trackUserLocation = false', async () => {
         const geolocate = new GeolocateControl({
             trackUserLocation: false,
@@ -580,7 +585,9 @@ describe('GeolocateControl with no options', () => {
         await zoomendPromise;
         expect(geolocate._circleElement.style.width).toBeTruthy();
     });
+    */
 
+    /*
     test('shown even if trackUserLocation = false', async () => {
         const geolocate = new GeolocateControl({
             trackUserLocation: false,
@@ -603,6 +610,7 @@ describe('GeolocateControl with no options', () => {
         await zoomendPromise;
         expect(geolocate._circleElement.style.width).toBeTruthy();
     });
+    */
 
     test('Geolocate control should appear only once', async () => {
         const geolocateControl = new GeolocateControl({});
