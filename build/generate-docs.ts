@@ -81,8 +81,44 @@ function generateReadme() {
 }
 
 /**
+ * Attempts to parse configuration metadata out of the first comment block,
+ * interpreting it JSON.
+ * If JSON parsing succeeds, the comment is removed and the JSON object returned as a configuration object.
+ * Otherwise, the HTML is left intact and the config is null.
+ * @param rawHtml - A raw HTML string to preprocess.
+ * @returns A JSON object with two keys: config and htmlContent. Config may be null.
+ */
+function preprocessHTML(rawHtml: string) {
+    const configPattern = /<!--([\s\S]*?)-->/;
+    const match = rawHtml.match(configPattern);
+
+    if (match) {
+        const configBody = match[1].trim();
+        let config;
+
+        try {
+            config = JSON.parse(configBody);
+            const htmlContent = rawHtml.replace(configPattern, '').trim();
+
+            return {
+                config,
+                htmlContent
+            };
+        } catch (error) {
+            console.info(`Ignoring comment ${configBody} as it does not appear to be JSON.`);
+        }
+    }
+
+    // If no config is found, return the original HTML with no config
+    return {
+        config: null,
+        htmlContent: rawHtml
+    };
+}
+
+/**
  * This takes the examples folder with all the html files and generates a markdown file for each of them.
- * It also create an index file with all the examples and their images.
+ * It also creates an index file with all the examples and their images.
  */
 async function generateExamplesFolder() {
     const examplesDocsFolder = path.join('docs', 'examples');
@@ -93,15 +129,43 @@ async function generateExamplesFolder() {
     const examplesFolder = path.join('test', 'examples');
     const files = fs.readdirSync(examplesFolder).filter(f => f.endsWith('html'));
     const maplibreUnpkg = `https://unpkg.com/maplibre-gl@${packageJson.version}/`;
+    const styleSwitcherScript = fs.readFileSync(path.join('build', 'style-switcher.js'));
     const indexArray = [] as HtmlDoc[];
+    // TODO: In which cases should we include the MapLibre Demo Tiles? These are only useful for very "zoomed out" maps.
+    const defaultMapStyles = {
+        americana: {name: 'Americana', styleUrl: 'https://americanamap.org/style.json'},
+        maptilerStreets: {name: 'MapTiler Streets', styleUrl: 'https://api.maptiler.com/maps/streets/style.json?key=get_your_own_OpIi9ZULNHzrESv6T2vL'},
+        alidadeSmoothDark: {name: 'Stadia Maps Alidade Smooth Dark', styleUrl: 'https://tiles.stadiamaps.com/styles/alidade_smooth_dark.json'}
+    };
+
     for (const file of files) {
         const htmlFile = path.join(examplesFolder, file);
-        let htmlContent = fs.readFileSync(htmlFile, 'utf-8');
+        let {config, htmlContent} = preprocessHTML(fs.readFileSync(htmlFile, 'utf-8'));
         htmlContent = htmlContent.replace(/\.\.\/\.\.\//g, maplibreUnpkg);
         htmlContent = htmlContent.replace(/-dev.js/g, '.js');
         const htmlContentLines = htmlContent.split('\n');
         const title = htmlContentLines.find(l => l.includes('<title'))?.replace('<title>', '').replace('</title>', '').trim()!;
         const description = htmlContentLines.find(l => l.includes('og:description'))?.replace(/.*content=\"(.*)\".*/, '$1')!;
+
+        const displayedHtmlContent = htmlContent;
+        // Decide whether we want to add the style switcher.
+        // Currently looks for the Americana style, but could be more sophisticated with some effort.
+        const injectStyleSwitcher = htmlContent.indexOf('https://americanamap.org/style.json') !== -1 || config?.availableMapStyles;
+
+        // If possible, inject a style switcher into the HTML.
+        // This will not show up in the copyable example code.
+        if (injectStyleSwitcher) {
+            const sentinel = '</script>';
+            const lastIndex = htmlContent.lastIndexOf(sentinel);
+
+            if (lastIndex !== -1) {
+                const availableMapStyles = JSON.stringify(config?.availableMapStyles || defaultMapStyles);
+                const originalHead = htmlContent.substring(0, lastIndex);
+                const originalTail = htmlContent.substring(lastIndex);
+                htmlContent = `${originalHead}\nconst availableMapStyles = ${availableMapStyles};\n${styleSwitcherScript}\n${originalTail}`;
+            }
+        }
+
         fs.writeFileSync(path.join(examplesDocsFolder, file), htmlContent);
         const mdFileName = file.replace('.html', '.md');
         indexArray.push({
@@ -109,7 +173,7 @@ async function generateExamplesFolder() {
             description,
             mdFileName
         });
-        const exampleMarkdown = generateMarkdownForExample(title, description, file, htmlContent);
+        const exampleMarkdown = generateMarkdownForExample(title, description, file, displayedHtmlContent);
         fs.writeFileSync(path.join(examplesDocsFolder, mdFileName), exampleMarkdown);
     }
 

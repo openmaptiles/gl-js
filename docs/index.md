@@ -34,7 +34,18 @@ This documentation is divided into several sections:
 
 Each section describes classes or objects as well as their **properties**, **parameters**, **instance members**, and associated **events**. Many sections also include inline code examples and related resources.
 
-In the examples, we use vector tiles from our [Demo tiles repository](https://github.com/maplibre/demotiles) and from [MapTiler](https://maptiler.com). Get your own API key if you want to use MapTiler data in your project.
+In the examples, we use vector tiles from our [Demo tiles repository](https://github.com/maplibre/demotiles)
+and the following other providers (presented in alphabetical order).
+
+|                                          |                                                                                                                                                            |
+|------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [Americana OSM](https://tile.ourmap.us/) | A community tile server run by (amazingly dedicated) volunteers. Consult their [tile usage policy](https://tile.ourmap.us/usage.html) for acceptable uses. |
+| [MapTiler](https://maptiler.com)         | A commercial tile provider; requires an API key for use.                                                                                                   |
+| [Stadia Maps](https://stadiamaps.com/)   | A commercial tile provider; requires an API key or domain registration for use.                                                                            |
+
+You can find a list of other tile providers on the
+[Awesome MapLibre](https://github.com/maplibre/awesome-maplibre?tab=readme-ov-file#maptile-providers) tile provider section,
+or on the [OSM Wiki](https://wiki.openstreetmap.org/wiki/Vector_tiles#Providers).
 
 ## NPM
 
