@@ -303,6 +303,8 @@ export class GeolocateControl extends Evented implements IControl {
         }
 
         DOM.remove(this._container);
+        this._map.off('move', this._onMove);
+        this._map.off('rotate', this._onRotate);
         this._map.off('zoom', this._onZoom);
         this._map = undefined;
         numberOfWatches = 0;
@@ -374,6 +376,11 @@ export class GeolocateControl extends Evented implements IControl {
             this._finish();
 
             return;
+        }
+
+        if (this.options.showAccuracyCircle) {
+            // this is needed by _updateCircleRadius()
+            this._lastKnownPosition = position;
         }
 
         if (this.options.trackUserLocation) {
@@ -460,15 +467,29 @@ export class GeolocateControl extends Evented implements IControl {
     };
 
     _updateCircleRadius() {
-        const bounds = this._map.getBounds();
-        const southEastPoint = bounds.getSouthEast();
-        const northEastPoint = bounds.getNorthEast();
-        const mapHeightInMeters = southEastPoint.distanceTo(northEastPoint);
-        const mapHeightInPixels = this._map._container.clientHeight;
-        const circleDiameter = Math.ceil(2 * (this._accuracy / (mapHeightInMeters / mapHeightInPixels)));
+        if (!this._lastKnownPosition) return;
+        const center = new LngLat(this._lastKnownPosition.coords.longitude, this._lastKnownPosition.coords.latitude);
+        const point = this._map.project(center);
+        const delta_x_pixels = 10; // arbitrary small offset, in x direction because there is no map tilting in the x direction
+        const delta = this._map.unproject([point.x + delta_x_pixels, point.y]);
+        const distance = delta.distanceTo(center);
+        const pixelScale = distance / delta_x_pixels;
+        const circleDiameter = 2 * (this._accuracy / pixelScale);
         this._circleElement.style.width = `${circleDiameter}px`;
         this._circleElement.style.height = `${circleDiameter}px`;
     }
+
+    _onMove = () => {
+        if (this.options.showUserLocation && this.options.showAccuracyCircle) {
+            this._updateCircleRadius();
+        }
+    };
+
+    _onRotate = () => {
+        if (this.options.showUserLocation && this.options.showAccuracyCircle) {
+            this._updateCircleRadius();
+        }
+    };
 
     _onZoom = () => {
         if (this.options.showUserLocation && this.options.showAccuracyCircle) {
@@ -573,6 +594,8 @@ export class GeolocateControl extends Evented implements IControl {
 
             if (this.options.trackUserLocation) this._watchState = 'OFF';
 
+            this._map.on('move', this._onMove);
+            this._map.on('rotate', this._onRotate);
             this._map.on('zoom', this._onZoom);
         }
 
