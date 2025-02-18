@@ -1,6 +1,7 @@
 import {DEMData} from '../data/dem_data';
 import {RGBAImage} from '../util/image';
 import type {Actor} from '../util/actor';
+import {AJAXError} from '../util/ajax';
 import type {
     WorkerDEMTileParameters,
     TileParameters
@@ -17,6 +18,10 @@ export class RasterDEMTileWorkerSource {
 
     async loadTile(params: WorkerDEMTileParameters): Promise<DEMData | null> {
         const {uid, encoding, rawImageData, redFactor, greenFactor, blueFactor, baseShift} = params;
+        if (rawImageData.width === 1) {
+            // 1x1 images should not be loaded. They are meant to cache tiles without content (204).
+            throw new AJAXError(404, 'not found', '', new Blob());
+        }
         const width = rawImageData.width + 2;
         const height = rawImageData.height + 2;
         const imagePixels: RGBAImage | ImageData = isImageBitmap(rawImageData) ?
