@@ -1,7 +1,8 @@
-import {type mat2, mat4, vec3, vec4} from 'gl-matrix';
+import {type mat2, mat4, vec3, vec4, quat} from 'gl-matrix';
 import {TransformHelper} from '../transform_helper';
 import {LngLat, type LngLatLike, earthRadius} from '../lng_lat';
 import {angleToRotateBetweenVectors2D, clamp, createIdentityMat4f32, createIdentityMat4f64, createMat4f64, createVec3f64, createVec4f64, differenceOfAnglesDegrees, distanceOfAnglesRadians, MAX_VALID_LATITUDE, pointPlaneSignedDistance, warnOnce} from '../../util/util';
+
 import {OverscaledTileID, UnwrappedTileID, type CanonicalTileID} from '../../source/tile_id';
 import Point from '@mapbox/point-geometry';
 import {MercatorCoordinate} from '../mercator_coordinate';
@@ -49,90 +50,119 @@ export class VerticalPerspectiveTransform implements ITransform {
     get pixelsToClipSpaceMatrix(): mat4 {
         return this._helper.pixelsToClipSpaceMatrix;
     }
+
     get clipSpaceToPixelsMatrix(): mat4 {
         return this._helper.clipSpaceToPixelsMatrix;
     }
+
     get pixelsToGLUnits(): [number, number] {
         return this._helper.pixelsToGLUnits;
     }
+
     get centerOffset(): Point {
         return this._helper.centerOffset;
     }
+
     get size(): Point {
         return this._helper.size;
     }
+
     get rotationMatrix(): mat2 {
         return this._helper.rotationMatrix;
     }
+
     get centerPoint(): Point {
         return this._helper.centerPoint;
     }
+
     get pixelsPerMeter(): number {
         return this._helper.pixelsPerMeter;
     }
+
     setMinZoom(zoom: number): void {
         this._helper.setMinZoom(zoom);
     }
+
     setMaxZoom(zoom: number): void {
         this._helper.setMaxZoom(zoom);
     }
+
     setMinPitch(pitch: number): void {
         this._helper.setMinPitch(pitch);
     }
+
     setMaxPitch(pitch: number): void {
         this._helper.setMaxPitch(pitch);
     }
+
     setRenderWorldCopies(renderWorldCopies: boolean): void {
         this._helper.setRenderWorldCopies(renderWorldCopies);
     }
+
     setBearing(bearing: number): void {
         this._helper.setBearing(bearing);
     }
+
     setPitch(pitch: number): void {
         this._helper.setPitch(pitch);
     }
+
     setRoll(roll: number): void {
         this._helper.setRoll(roll);
     }
+
     setFov(fov: number): void {
         this._helper.setFov(fov);
     }
+
     setZoom(zoom: number): void {
         this._helper.setZoom(zoom);
     }
+
     setCenter(center: LngLat): void {
         this._helper.setCenter(center);
     }
+
     setElevation(elevation: number): void {
         this._helper.setElevation(elevation);
     }
+
     setMinElevationForCurrentTile(elevation: number): void {
         this._helper.setMinElevationForCurrentTile(elevation);
     }
+
     setPadding(padding: PaddingOptions): void {
         this._helper.setPadding(padding);
     }
+
     interpolatePadding(start: PaddingOptions, target: PaddingOptions, t: number): void {
         return this._helper.interpolatePadding(start, target, t);
     }
+
     isPaddingEqual(padding: PaddingOptions): boolean {
         return this._helper.isPaddingEqual(padding);
     }
+
     resize(width: number, height: number): void {
         this._helper.resize(width, height);
     }
+
     getMaxBounds(): LngLatBounds {
         return this._helper.getMaxBounds();
     }
+
     setMaxBounds(bounds?: LngLatBounds): void {
         this._helper.setMaxBounds(bounds);
     }
+
     overrideNearFarZ(nearZ: number, farZ: number): void {
         this._helper.overrideNearFarZ(nearZ, farZ);
     }
+
     clearNearFarZOverride(): void {
         this._helper.clearNearFarZOverride();
     }
+
     getCameraQueryGeometry(queryGeometry: Point[]): Point[] {
         return this._helper.getCameraQueryGeometry(this.getCameraPoint(), queryGeometry);
     }
@@ -140,96 +170,127 @@ export class VerticalPerspectiveTransform implements ITransform {
     get tileSize(): number {
         return this._helper.tileSize;
     }
+
     get tileZoom(): number {
         return this._helper.tileZoom;
     }
+
     get scale(): number {
         return this._helper.scale;
     }
+
     get worldSize(): number {
         return this._helper.worldSize;
     }
+
     get width(): number {
         return this._helper.width;
     }
+
     get height(): number {
         return this._helper.height;
     }
+
     get lngRange(): [number, number] {
         return this._helper.lngRange;
     }
+
     get latRange(): [number, number] {
         return this._helper.latRange;
     }
+
     get minZoom(): number {
         return this._helper.minZoom;
     }
+
     get maxZoom(): number {
         return this._helper.maxZoom;
     }
+
     get zoom(): number {
         return this._helper.zoom;
     }
+
     get center(): LngLat {
         return this._helper.center;
     }
+
     get minPitch(): number {
         return this._helper.minPitch;
     }
+
     get maxPitch(): number {
         return this._helper.maxPitch;
     }
+
     get pitch(): number {
         return this._helper.pitch;
     }
+
     get pitchInRadians(): number {
         return this._helper.pitchInRadians;
     }
+
     get roll(): number {
         return this._helper.roll;
     }
+
     get rollInRadians(): number {
         return this._helper.rollInRadians;
     }
+
     get bearing(): number {
         return this._helper.bearing;
     }
+
     get bearingInRadians(): number {
         return this._helper.bearingInRadians;
     }
+
     get fov(): number {
         return this._helper.fov;
     }
+
     get fovInRadians(): number {
         return this._helper.fovInRadians;
     }
+
     get elevation(): number {
         return this._helper.elevation;
     }
+
     get minElevationForCurrentTile(): number {
         return this._helper.minElevationForCurrentTile;
     }
+
     get padding(): PaddingOptions {
         return this._helper.padding;
     }
+
     get unmodified(): boolean {
         return this._helper.unmodified;
     }
+
     get renderWorldCopies(): boolean {
         return this._helper.renderWorldCopies;
     }
-    public get nearZ(): number { 
-        return this._helper.nearZ; 
+
+    public get nearZ(): number {
+        return this._helper.nearZ;
     }
-    public get farZ(): number { 
-        return this._helper.farZ; 
+
+    public get farZ(): number {
+        return this._helper.farZ;
     }
-    public get autoCalculateNearFarZ(): boolean { 
-        return this._helper.autoCalculateNearFarZ; 
+
+    public get autoCalculateNearFarZ(): boolean {
+        return this._helper.autoCalculateNearFarZ;
     }
+
     setTransitionState(_value: number): void {
         // Do nothing
     }
+
     //
     // Implementation of globe transform
     //
@@ -254,8 +315,12 @@ export class VerticalPerspectiveTransform implements ITransform {
     public constructor() {
 
         this._helper = new TransformHelper({
-            calcMatrices: () => { this._calcMatrices(); },
-            getConstrained: (center, zoom) => { return this.getConstrained(center, zoom); }
+            calcMatrices: () => {
+                this._calcMatrices();
+            },
+            getConstrained: (center, zoom) => {
+                return this.getConstrained(center, zoom);
+            }
         });
         this._coveringTilesDetailsProvider = new GlobeCoveringTilesDetailsProvider();
     }
@@ -271,11 +336,17 @@ export class VerticalPerspectiveTransform implements ITransform {
         this._helper.apply(that);
     }
 
-    public get projectionMatrix(): mat4 { return this._projectionMatrix; }
+    public get projectionMatrix(): mat4 {
+        return this._projectionMatrix;
+    }
 
-    public get modelViewProjectionMatrix(): mat4 { return this._globeViewProjMatrixNoCorrection; }
+    public get modelViewProjectionMatrix(): mat4 {
+        return this._globeViewProjMatrixNoCorrection;
+    }
 
-    public get inverseProjectionMatrix(): mat4 { return this._globeProjMatrixInverted; }
+    public get inverseProjectionMatrix(): mat4 {
+        return this._globeProjMatrixInverted;
+    }
 
     public get cameraPosition(): vec3 {
         // Return a copy - don't let outside code mutate our precomputed camera position.
@@ -519,9 +590,11 @@ export class VerticalPerspectiveTransform implements ITransform {
     getCameraFrustum(): Frustum {
         return this._cachedFrustum;
     }
+
     getClippingPlane(): vec4 | null {
         return this._cachedClippingPlane;
     }
+
     getCoveringTilesDetailsProvider(): CoveringTilesDetailsProvider {
         return this._coveringTilesDetailsProvider;
     }
@@ -659,101 +732,130 @@ export class VerticalPerspectiveTransform implements ITransform {
      * Note: automatically adjusts zoom to keep planet size consistent
      * (same size before and after a {@link setLocationAtPoint} call).
      */
-    setLocationAtPoint(lnglat: LngLat, point: Point): void {
+    setLocationAtPoint(lngLat: LngLat, point: Point, keepBearingFixed = true): void {
         // This returns some fake coordinates for pixels that do not lie on the planet.
         // Whatever uses this `setLocationAtPoint` function will need to account for that.
         const pointLngLat = this.unprojectScreenPoint(point);
         const vecToPixelCurrent = angularCoordinatesToSurfaceVector(pointLngLat);
-        const vecToTarget = angularCoordinatesToSurfaceVector(lnglat);
+        const vecToTarget = angularCoordinatesToSurfaceVector(lngLat);
 
-        const zero = createVec3f64();
-        vec3.zero(zero);
+        if (keepBearingFixed) {
+            const zero = createVec3f64();
+            vec3.zero(zero);
 
-        const rotatedPixelVector = createVec3f64();
-        vec3.rotateY(rotatedPixelVector, vecToPixelCurrent, zero, -this.center.lng * Math.PI / 180.0);
-        vec3.rotateX(rotatedPixelVector, rotatedPixelVector, zero, this.center.lat * Math.PI / 180.0);
+            const rotatedPixelVector = createVec3f64();
+            vec3.rotateY(rotatedPixelVector, vecToPixelCurrent, zero, -this.center.lng * Math.PI / 180.0);
+            vec3.rotateX(rotatedPixelVector, rotatedPixelVector, zero, this.center.lat * Math.PI / 180.0);
 
-        // We are looking for the lng,lat that will rotate `vecToTarget`
-        // so that it is equal to `rotatedPixelVector`.
+            // We are looking for the lng,lat that will rotate `vecToTarget`
+            // so that it is equal to `rotatedPixelVector`.
 
-        // The second rotation around X axis cannot change the X component,
-        // so we first must find the longitude such that rotating `vecToTarget` with it
-        // will place it so its X component is equal to X component of `rotatedPixelVector`.
-        // There will exist zero, one or two longitudes that satisfy this.
+            // The second rotation around X axis cannot change the X component,
+            // so we first must find the longitude such that rotating `vecToTarget` with it
+            // will place it so its X component is equal to X component of `rotatedPixelVector`.
+            // There will exist zero, one or two longitudes that satisfy this.
 
-        //      x  |
-        //     /   |
-        //    /    | the line is the target X - rotatedPixelVector.x
-        //   /     | the x is vecToTarget projected to x,z plane
-        //  .      | the dot is origin
-        //
-        // We need to rotate vecToTarget so that it intersects the line.
-        // If vecToTarget is shorter than the distance to the line from origin, it is impossible.
+            //      x  |
+            //     /   |
+            //    /    | the line is the target X - rotatedPixelVector.x
+            //   /     | the x is vecToTarget projected to x,z plane
+            //  .      | the dot is origin
+            //
+            // We need to rotate vecToTarget so that it intersects the line.
+            // If vecToTarget is shorter than the distance to the line from origin, it is impossible.
 
-        // Otherwise, we compute the intersection of the line with a ring with radius equal to
-        // length of vecToTarget projected to XZ plane.
+            // Otherwise, we compute the intersection of the line with a ring with radius equal to
+            // length of vecToTarget projected to XZ plane.
 
-        const vecToTargetXZLengthSquared = vecToTarget[0] * vecToTarget[0] + vecToTarget[2] * vecToTarget[2];
-        const targetXSquared = rotatedPixelVector[0] * rotatedPixelVector[0];
-        if (vecToTargetXZLengthSquared < targetXSquared) {
-            // Zero solutions - setLocationAtPoint is impossible.
-            return;
-        }
+            const vecToTargetXZLengthSquared = vecToTarget[0] * vecToTarget[0] + vecToTarget[2] * vecToTarget[2];
+            const targetXSquared = rotatedPixelVector[0] * rotatedPixelVector[0];
+            if (vecToTargetXZLengthSquared < targetXSquared) {
+                // Zero solutions - setLocationAtPoint is impossible.
+                return;
+            }
 
-        // The intersection's Z coordinates
-        const intersectionA = Math.sqrt(vecToTargetXZLengthSquared - targetXSquared);
-        const intersectionB = -intersectionA; // the second solution
+            // The intersection's Z coordinates
+            const intersectionA = Math.sqrt(vecToTargetXZLengthSquared - targetXSquared);
+            const intersectionB = -intersectionA; // the second solution
 
-        const lngA = angleToRotateBetweenVectors2D(vecToTarget[0], vecToTarget[2], rotatedPixelVector[0], intersectionA);
-        const lngB = angleToRotateBetweenVectors2D(vecToTarget[0], vecToTarget[2], rotatedPixelVector[0], intersectionB);
+            const lngA = angleToRotateBetweenVectors2D(vecToTarget[0], vecToTarget[2], rotatedPixelVector[0], intersectionA);
+            const lngB = angleToRotateBetweenVectors2D(vecToTarget[0], vecToTarget[2], rotatedPixelVector[0], intersectionB);
 
-        const vecToTargetLngA = createVec3f64();
-        vec3.rotateY(vecToTargetLngA, vecToTarget, zero, -lngA);
-        const latA = angleToRotateBetweenVectors2D(vecToTargetLngA[1], vecToTargetLngA[2], rotatedPixelVector[1], rotatedPixelVector[2]);
-        const vecToTargetLngB = createVec3f64();
-        vec3.rotateY(vecToTargetLngB, vecToTarget, zero, -lngB);
-        const latB = angleToRotateBetweenVectors2D(vecToTargetLngB[1], vecToTargetLngB[2], rotatedPixelVector[1], rotatedPixelVector[2]);
-        // Is at least one of the needed latitudes valid?
+            const vecToTargetLngA = createVec3f64();
+            vec3.rotateY(vecToTargetLngA, vecToTarget, zero, -lngA);
+            const latA = angleToRotateBetweenVectors2D(vecToTargetLngA[1], vecToTargetLngA[2], rotatedPixelVector[1], rotatedPixelVector[2]);
+            const vecToTargetLngB = createVec3f64();
+            vec3.rotateY(vecToTargetLngB, vecToTarget, zero, -lngB);
+            const latB = angleToRotateBetweenVectors2D(vecToTargetLngB[1], vecToTargetLngB[2], rotatedPixelVector[1], rotatedPixelVector[2]);
+            // Is at least one of the needed latitudes valid?
 
-        const limit = Math.PI * 0.5;
+            const limit = Math.PI * 0.5;
 
-        const isValidA = latA >= -limit && latA <= limit;
-        const isValidB = latB >= -limit && latB <= limit;
+            const isValidA = latA >= -limit && latA <= limit;
+            const isValidB = latB >= -limit && latB <= limit;
 
-        let validLng: number;
-        let validLat: number;
-        if (isValidA && isValidB) {
-            // Pick the solution that is closer to current map center.
-            const centerLngRadians = this.center.lng * Math.PI / 180.0;
-            const centerLatRadians = this.center.lat * Math.PI / 180.0;
-            const lngDistA = distanceOfAnglesRadians(lngA, centerLngRadians);
-            const latDistA = distanceOfAnglesRadians(latA, centerLatRadians);
-            const lngDistB = distanceOfAnglesRadians(lngB, centerLngRadians);
-            const latDistB = distanceOfAnglesRadians(latB, centerLatRadians);
+            let validLng: number;
+            let validLat: number;
+            if (isValidA && isValidB) {
+                // Pick the solution that is closer to current map center.
+                const centerLngRadians = this.center.lng * Math.PI / 180.0;
+                const centerLatRadians = this.center.lat * Math.PI / 180.0;
+                const lngDistA = distanceOfAnglesRadians(lngA, centerLngRadians);
+                const latDistA = distanceOfAnglesRadians(latA, centerLatRadians);
+                const lngDistB = distanceOfAnglesRadians(lngB, centerLngRadians);
+                const latDistB = distanceOfAnglesRadians(latB, centerLatRadians);
 
-            if ((lngDistA + latDistA) < (lngDistB + latDistB)) {
+                if ((lngDistA + latDistA) < (lngDistB + latDistB)) {
+                    validLng = lngA;
+                    validLat = latA;
+                } else {
+                    validLng = lngB;
+                    validLat = latB;
+                }
+            } else if (isValidA) {
                 validLng = lngA;
                 validLat = latA;
-            } else {
+            } else if (isValidB) {
                 validLng = lngB;
                 validLat = latB;
+            } else {
+                // No solution.
+                return;
             }
-        } else if (isValidA) {
-            validLng = lngA;
-            validLat = latA;
-        } else if (isValidB) {
-            validLng = lngB;
-            validLat = latB;
-        } else {
-            // No solution.
-            return;
-        }
 
-        const newLng = validLng / Math.PI * 180;
-        const newLat = validLat / Math.PI * 180;
-        const oldLat = this.center.lat;
-        this.setCenter(new LngLat(newLng, clamp(newLat, -90, 90)));
-        this.setZoom(this.zoom + getZoomAdjustment(oldLat, this.center.lat));
+            const newLng = validLng / Math.PI * 180;
+            const newLat = validLat / Math.PI * 180;
+            const oldLat = this.center.lat;
+            this.setCenter(new LngLat(newLng, clamp(newLat, -90, 90)));
+            this.setZoom(this.zoom + getZoomAdjustment(oldLat, this.center.lat));
+
+        } else {
+            // This is a version of the above code, based on quaternion, changing also the bearing which allows
+            // some solutions that are not possible with the above code.
+            // centerQuat represent the rotation of the globe from the origin
+            const centerQuat = quat.fromEuler(createVec4f64(), -this.center.lng, -this.center.lat, this.bearing);
+
+            // We calculate the quaternion rotation that will bring the source point to the target point
+            // Note: quat.rotateTo from gl-matrix  is not used because it's not working for small angles
+            const w = vec3.cross(createVec3f64(), vecToTarget, vecToPixelCurrent);
+            const l = Math.sqrt(vec3.dot(w, w));
+            const t = Math.acos(Math.max(-1, Math.min(1, vec3.dot(vecToTarget, vecToPixelCurrent)))) / 2;
+            const s = Math.sin(t); // t = θ / 2
+
+            const delta = l ? quat.fromValues((w[1] / l) * s, (-w[0] / l) * s, (w[2] / l) * s, Math.cos(t)) : quat.fromValues(0, 0, 0, 1);
+
+            const newCenterQuat = quat.multiply(createVec4f64(), centerQuat, delta);
+            const [b, c, d, a] = newCenterQuat;
+
+            const newCenterLng = -(Math.atan2(2 * (a * b + c * d), 1 - 2 * (b * b + c * c)) * 180) / Math.PI;
+            const newCenterLat = -(Math.asin(Math.max(-1, Math.min(1, 2 * (a * c - d * b)))) * 180) / Math.PI;
+            const newBearing = (Math.atan2(2 * (a * d + b * c), 1 - 2 * (c * c + d * d)) * 180) / Math.PI;
+
+            const oldLat = this.center.lat;
+            this.setCenter(new LngLat(newCenterLng, newCenterLat));
+            this.setBearing(newBearing);
+            this.setZoom(this.zoom + getZoomAdjustment(oldLat, this.center.lat));
+        }
     }
 
     locationToScreenPoint(lnglat: LngLat, terrain?: Terrain): Point {
@@ -824,6 +926,28 @@ export class VerticalPerspectiveTransform implements ITransform {
         ray[0] = pos[0] - this._cameraPosition[0];
         ray[1] = pos[1] - this._cameraPosition[1];
         ray[2] = pos[2] - this._cameraPosition[2];
+        const rayNormalized: vec3 = createVec3f64();
+        vec3.normalize(rayNormalized, ray);
+        return rayNormalized;
+    }
+
+    /**
+     * Computes normalized direction of a ray from the center of the globe to the given screen pixel.
+     */
+    getRayDirectionFromPixelToCenter(p: Point): vec3 {
+        const pos = createVec4f64();
+        pos[0] = (p.x / this.width) * 2.0 - 1.0;
+        pos[1] = ((p.y / this.height) * 2.0 - 1.0) * -1.0;
+        pos[2] = 1;
+        pos[3] = 1;
+        vec4.transformMat4(pos, pos, this._globeViewProjMatrixNoCorrectionInverted);
+        pos[0] /= pos[3];
+        pos[1] /= pos[3];
+        pos[2] /= pos[3];
+        const ray = createVec3f64();
+        ray[0] = pos[0] - this.centerPoint[0];
+        ray[1] = pos[1] - this.centerPoint[1];
+        ray[2] = pos[2] - this.centerPoint[2];
         const rayNormalized: vec3 = createVec3f64();
         vec3.normalize(rayNormalized, ray);
         return rayNormalized;
@@ -980,7 +1104,10 @@ export class VerticalPerspectiveTransform implements ITransform {
     }
 
     getProjectionDataForCustomLayer(applyGlobeMatrix: boolean = true): ProjectionData {
-        const globeData = this.getProjectionData({overscaledTileID: new OverscaledTileID(0, 0, 0, 0, 0), applyGlobeMatrix});
+        const globeData = this.getProjectionData({
+            overscaledTileID: new OverscaledTileID(0, 0, 0, 0, 0),
+            applyGlobeMatrix
+        });
         globeData.tileMercatorCoords = [0, 0, 1, 1];
         return globeData;
     }

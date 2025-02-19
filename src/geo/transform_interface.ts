@@ -185,8 +185,9 @@ interface ITransformMutators {
      * Set's the transform's center so that the given point on screen is at the given world coordinates.
      * @param lnglat - Desired world coordinates of the point.
      * @param point - The screen point that should lie at the given coordinates.
+     * @param keepBearingFixed - Whether the bearing should be kept fixed for globe transform.
      */
-    setLocationAtPoint(lnglat: LngLat, point: Point): void;
+    setLocationAtPoint(lnglat: LngLat, point: Point, keepBearingFixed?: boolean): void;
 
     /**
      * Sets or clears the map's geographical constraints.

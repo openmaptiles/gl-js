@@ -128,14 +128,10 @@ export class VerticalPerspectiveCameraHelper implements ICameraHelper {
             return;
         }
 
-        // These are actually very similar to mercator controls, and should converge to them at high zooms.
-        // We avoid using the "grab a place and move it around" approach from mercator here,
-        // since it is not a very pleasant way to pan a globe.
-        const oldLat = tr.center.lat;
-        const oldZoom = tr.zoom;
-        tr.setCenter(computeGlobePanCenter(deltas.panDelta, tr).wrap());
-        // Setting the center might adjust zoom to keep globe size constant, we need to avoid adding this adjustment a second time
-        tr.setZoom(oldZoom + getZoomAdjustment(oldLat, tr.center.lat));
+        if (!tr.isPointOnMapSurface(deltas.around)) {
+            return;
+        }
+        tr.setLocationAtPoint(_preZoomAroundLoc, deltas.around, false);
     }
 
     cameraForBoxAndBearing(options: CameraForBoundsOptions, padding: PaddingOptions, bounds: LngLatBounds, bearing: number, tr: ITransform): CameraForBoxAndBearingHandlerResult {
