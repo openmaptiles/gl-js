@@ -341,6 +341,10 @@ describe('hash', () => {
             window.location.hash = '#5/1.00/0.50/30/60';
 
             expect(hash._isValidHash(hash._getCurrentHash())).toBeTruthy();
+
+            window.location.hash = '#5/1.00/0.50/-30/60';
+
+            expect(hash._isValidHash(hash._getCurrentHash())).toBeTruthy();
         });
 
         test('invalidate hash with string values', () => {
@@ -363,6 +367,16 @@ describe('hash', () => {
 
         test('invalidate hash, latitude out of range', () => {
             window.location.hash = '#10/100.00/-1.00';
+
+            expect(hash._isValidHash(hash._getCurrentHash())).toBeFalsy();
+        });
+
+        test('invalidate hash, bearing out of range', () => {
+            window.location.hash = '#10/3.00/-1.00/450';
+
+            expect(hash._isValidHash(hash._getCurrentHash())).toBeFalsy();
+
+            window.location.hash = '#10/3.00/-1.00/-450';
 
             expect(hash._isValidHash(hash._getCurrentHash())).toBeFalsy();
         });

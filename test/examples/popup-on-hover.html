@@ -158,26 +158,35 @@
             closeOnClick: false
         });
 
-        map.on('mouseenter', 'places', (e) => {
-            // Change the cursor style as a UI indicator.
-            map.getCanvas().style.cursor = 'pointer';
+        // Make sure to detect marker change for overlapping markers
+        // and use mousemove instead of mouseenter event
+        let currentFeatureCoordinates = undefined;
+        map.on('mousemove', 'places', (e) => {
+            const featureCoordinates = e.features[0].geometry.coordinates.toString();
+            if (currentFeatureCoordinates !== featureCoordinates) {
+                currentFeatureCoordinates = featureCoordinates;
 
-            const coordinates = e.features[0].geometry.coordinates.slice();
-            const description = e.features[0].properties.description;
+                // Change the cursor style as a UI indicator.
+                map.getCanvas().style.cursor = 'pointer';
 
-            // Ensure that if the map is zoomed out such that multiple
-            // copies of the feature are visible, the popup appears
-            // over the copy being pointed to.
-            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-                coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+                const coordinates = e.features[0].geometry.coordinates.slice();
+                const description = e.features[0].properties.description;
+
+                // Ensure that if the map is zoomed out such that multiple
+                // copies of the feature are visible, the popup appears
+                // over the copy being pointed to.
+                while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                    coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+                }
+
+                // Populate the popup and set its coordinates
+                // based on the feature found.
+                popup.setLngLat(coordinates).setHTML(description).addTo(map);
             }
-
-            // Populate the popup and set its coordinates
-            // based on the feature found.
-            popup.setLngLat(coordinates).setHTML(description).addTo(map);
         });
 
         map.on('mouseleave', 'places', () => {
+            currentFeatureCoordinates = undefined;
             map.getCanvas().style.cursor = '';
             popup.remove();
         });

@@ -1,6 +1,7 @@
 import {loadGlyphRange} from '../style/load_glyph_range';
 
 import TinySDF from '@mapbox/tiny-sdf';
+import {unicodeBlockLookup} from '../util/is_char_in_unicode_block';
 import {AlphaImage} from '../util/image';
 
 import type {StyleGlyph} from '../style/style_glyph';
@@ -126,7 +127,17 @@ export class GlyphManager {
         // text, also include any other CJKV or siniform ideograph or hangul,
         // hiragana, or katakana character.
         return !!this.localIdeographFontFamily &&
-            /\p{Ideo}|\p{sc=Hang}|\p{sc=Hira}|\p{sc=Kana}/u.test(String.fromCodePoint(id));
+        (/\p{Ideo}|\p{sc=Hang}|\p{sc=Hira}|\p{sc=Kana}/u.test(String.fromCodePoint(id)) ||
+        // fallback: RegExp can't cover all cases. refer Issue #5420
+        unicodeBlockLookup['CJK Unified Ideographs'](id) ||
+        unicodeBlockLookup['Hangul Syllables'](id) ||
+        unicodeBlockLookup['Hiragana'](id) ||
+        unicodeBlockLookup['Katakana'](id) || // includes "ー"
+        // memo: these symbols are not all. others could be added if needed.
+        unicodeBlockLookup['CJK Symbols and Punctuation'](id) || // 、。〃〄々〆〇〈〉《》「...
+        unicodeBlockLookup['Halfwidth and Fullwidth Forms'](id) // ！？＂＃＄％＆...
+        );
+         
     }
 
     _tinySDF(entry: Entry, stack: string, id: number): StyleGlyph {

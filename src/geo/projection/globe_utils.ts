@@ -52,7 +52,7 @@ export function angularCoordinatesRadiansToVector(lngRadians: number, latRadians
  * @returns A 3D vector - coordinates of the projected point on a unit sphere.
  */
 export function projectTileCoordinatesToSphere(inTileX: number, inTileY: number, tileIdX: number, tileIdY: number, tileIdZ: number): vec3 {
-    // This code could be assembled from 3 fuctions, but this is a hot path for symbol placement,
+    // This code could be assembled from 3 functions, but this is a hot path for symbol placement,
     // so for optimization purposes everything is inlined by hand.
     //
     // Non-inlined variant of this function would be this:

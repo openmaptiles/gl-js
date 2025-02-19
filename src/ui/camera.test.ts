@@ -3168,6 +3168,50 @@ describe('#flyTo globe projection', () => {
             expect(camera.getBearing()).toBe(90);
         });
 
+        test('immediately sets padding with duration = 0', () => {
+            const camera = createCameraGlobe();
+            camera.flyTo({center: [100, 0], duration: 0, padding: {left: 100}});
+            expect(camera.getPadding()).toEqual({
+                bottom: 0,
+                left: 100,
+                right: 0,
+                top: 0,
+            });
+
+        });
+
+        test('smoothly sets given padding with duration > 0', async () => {
+            const camera = createCameraGlobe();
+            const stub = vi.spyOn(browser, 'now');
+            const promise = camera.once('moveend');
+
+            stub.mockImplementation(() => 0);
+
+            camera.flyTo({center: [100, 0], duration: 100, padding: {left: 100}});
+
+            stub.mockImplementation(() => 100);
+            camera.simulateFrame();
+
+            const padding = camera.getPadding();
+
+            expect(padding.bottom).toBe(0);
+            expect(padding.left).toBeCloseTo(100, 4);
+            expect(padding.right).toBe(0);
+            expect(padding.top).toBe(0);
+
+            stub.mockImplementation(() => 100);
+            camera.simulateFrame();
+
+            await promise;
+
+            expect(camera.getPadding()).toEqual({
+                bottom: 0,
+                left: 100,
+                right: 0,
+                top: 0,
+            });
+        });
+
         test('zooms and rotates', () => {
             const camera = createCameraGlobe();
             camera.flyTo({zoom: 3.2, bearing: 90, animate: false});

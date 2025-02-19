@@ -172,7 +172,7 @@ export class Hash {
         const pitch = +(hash[4] || 0);
 
         return zoom >= this._map.getMinZoom() && zoom <= this._map.getMaxZoom() &&
-            bearing >= 0 && bearing <= 180 &&
+            bearing >= -180 && bearing <= 180 &&
             pitch >= this._map.getMinPitch() && pitch <= this._map.getMaxPitch();
     };
 }

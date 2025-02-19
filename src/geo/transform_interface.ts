@@ -279,7 +279,7 @@ export interface IReadonlyTransform extends ITransformGetters {
 
     /**
      * @internal
-     * Return the clipping plane, behind wich nothing should be rendered. If the camera frustum is sufficient
+     * Return the clipping plane, behind which nothing should be rendered. If the camera frustum is sufficient
      * to describe the render geometry (additional clipping is not required), this may be null.
      */
     getClippingPlane(): vec4 | null;

@@ -14,10 +14,10 @@
 </head>
 <body>
 
-<script src="https://cdn.jsdelivr.net/npm/@watergis/maplibre-gl-terradraw@0.6.4/dist/maplibre-gl-terradraw.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@watergis/maplibre-gl-terradraw@1.0.1/dist/maplibre-gl-terradraw.umd.js"></script>
 <link
     rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/@watergis/maplibre-gl-terradraw@0.6.4/dist/maplibre-gl-terradraw.css"
+    href="https://cdn.jsdelivr.net/npm/@watergis/maplibre-gl-terradraw@1.0.1/dist/maplibre-gl-terradraw.css"
 />
 <div id="map"></div>
 
@@ -34,7 +34,7 @@
     // you can disable some of modes in the constructor options if you want.
     const draw = new MaplibreTerradrawControl.MaplibreTerradrawControl({
         modes: [
-            'render',
+            // 'render', comment this to always show drawing tool
             'point',
             'linestring',
             'polygon',
@@ -46,11 +46,12 @@
             'sector',
             'select',
             'delete-selection',
-            'delete'
+            'delete',
+            'download'
         ],
         open: true,
     });
-    map.addControl(draw, 'top-right');
+    map.addControl(draw, 'top-left');
 </script>
 </body>
 </html>

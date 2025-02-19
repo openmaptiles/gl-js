@@ -130,6 +130,12 @@ describe('GlyphManager', () => {
         expect(manager._doesCharSupportLocalGlyph(0x3066)).toBe(true);
         // Hangul letter a 아
         expect(manager._doesCharSupportLocalGlyph(0xC544)).toBe(true);
+        // Japanese full-width dash ー
+        expect(manager._doesCharSupportLocalGlyph(0x30FC)).toBe(true);
+        // Halfwidth and Fullwidth Forms: full-width exclamation ！
+        expect(manager._doesCharSupportLocalGlyph(0xFF01)).toBe(true);
+        // CJK Symbols and Punctuation: Japanese Post mark 〒
+        expect(manager._doesCharSupportLocalGlyph(0x3012)).toBe(true);
     });
 
     test('GlyphManager caches locally generated glyphs', async () => {
