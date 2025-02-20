@@ -156,4 +156,29 @@ describe('map events', () => {
         simulate.contextmenu(map.getCanvas(), {target, button: 2, clientX: 10, clientY: 10}); // triggered only after mouseup
         expect(contextmenu).toHaveBeenCalledTimes(0);
     });
+
+    test('MapMouseEvent constructor does not throw error with Event instance instead of MouseEvent as originalEvent param', () => {
+        const map = createMap();
+        const target = map.getCanvasContainer();
+
+        expect(()=> {
+            target.dispatchEvent(new Event('mousedown'));
+            target.dispatchEvent(new Event('mouseup'));
+            target.dispatchEvent(new Event('click'));
+            target.dispatchEvent(new Event('dblclick'));
+            target.dispatchEvent(new Event('mousemove'));
+            target.dispatchEvent(new Event('mouseover'));
+            target.dispatchEvent(new Event('mouseenter'));
+            target.dispatchEvent(new Event('mouseleave'));
+            target.dispatchEvent(new Event('mouseout'));
+            target.dispatchEvent(new Event('contextmenu'));
+            target.dispatchEvent(new Event('wheel'));
+
+            target.dispatchEvent(new Event('touchstart'));
+            target.dispatchEvent(new Event('touchmove'));
+            target.dispatchEvent(new Event('touchmoveWindow'));
+            target.dispatchEvent(new Event('touchend'));
+            target.dispatchEvent(new Event('touchcancel'));
+        }).not.toThrow();
+    });
 });

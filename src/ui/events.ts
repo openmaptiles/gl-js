@@ -536,6 +536,7 @@ export class MapMouseEvent extends Event implements MapLibreEvent<MouseEvent> {
     _defaultPrevented: boolean;
 
     constructor(type: string, map: Map, originalEvent: MouseEvent, data: any = {}) {
+        originalEvent = originalEvent instanceof MouseEvent ? originalEvent : new MouseEvent(type, originalEvent);
         const point = DOM.mousePos(map.getCanvas(), originalEvent);
         const lngLat = map.unproject(point);
         super(type, extend({point, lngLat, originalEvent}, data));

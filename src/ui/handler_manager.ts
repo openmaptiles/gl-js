@@ -17,7 +17,7 @@ import {DragPanHandler} from './handler/shim/drag_pan';
 import {DragRotateHandler} from './handler/shim/drag_rotate';
 import {TwoFingersTouchZoomRotateHandler} from './handler/shim/two_fingers_touch';
 import {CooperativeGesturesHandler} from './handler/cooperative_gestures';
-import {extend} from '../util/util';
+import {extend, isPointableEvent, isTouchableEvent, isTouchableOrPointableType} from '../util/util';
 import {browser} from '../util/browser';
 import Point from '@mapbox/point-geometry';
 import {type MapControlsDeltas} from '../geo/projection/camera_helper';
@@ -377,12 +377,6 @@ export class HandlerManager {
         const mergedHandlerResult: HandlerResult = {needsRenderFrame: false};
         const eventsInProgress: EventsInProgress = {};
         const activeHandlers = {};
-        const eventTouches = (e as TouchEvent).touches;
-
-        const mapTouches = eventTouches ? this._getMapTouches(eventTouches) : undefined;
-        const points = mapTouches ?
-            DOM.touchPos(this._map.getCanvas(), mapTouches) :
-            DOM.mousePos(this._map.getCanvas(), ((e as MouseEvent)));
 
         for (const {handlerName, handler, allowed} of this._handlers) {
             if (!handler.isEnabled()) continue;
@@ -393,7 +387,17 @@ export class HandlerManager {
 
             } else {
                 if (handler[eventName || e.type]) {
-                    data = handler[eventName || e.type](e, points, mapTouches);
+                    if (isPointableEvent(e, eventName || e.type)){
+                        const point = DOM.mousePos(this._map.getCanvas(), e);
+                        data = handler[eventName || e.type](e, point);
+                    } else if (isTouchableEvent(e, eventName || e.type)) {
+                        const eventTouches = (e as TouchEvent).touches;
+                        const mapTouches = this._getMapTouches(eventTouches);
+                        const points = DOM.touchPos(this._map.getCanvas(), mapTouches);
+                        data = handler[eventName || e.type](e, points, mapTouches);
+                    } else if (!isTouchableOrPointableType(eventName || e.type)) {
+                        data = handler[eventName || e.type](e);
+                    }
                     this.mergeHandlerResult(mergedHandlerResult, eventsInProgress, data, handlerName, inputEvent);
                     if (data && data.needsRenderFrame) {
                         this._triggerRenderFrame();
