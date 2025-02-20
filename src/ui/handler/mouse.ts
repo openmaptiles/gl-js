@@ -34,23 +34,31 @@ const assignEvents = (handler: DragHandler<DragPanResult, MouseEvent>) => {
     };
 };
 
-export function generateMousePanHandler({enable, clickTolerance}: {
+export function generateMousePanHandler({enable, clickTolerance, dragPan}: {
     clickTolerance: number;
     enable?: boolean;
+    dragPan?: any;
 }): MousePanHandler {
     const mouseMoveStateManager = new MouseMoveStateManager({
-        checkCorrectEvent: (e: MouseEvent) => DOM.mouseButton(e) === LEFT_BUTTON && !e.ctrlKey,
+        checkCorrectEvent: (e: MouseEvent, buttons?:number[]) => {
+            const button = DOM.mouseButton(e);
+            return buttons.includes(button) && !e.ctrlKey;
+        }
     });
-    return new DragHandler<DragPanResult, MouseEvent>({
+    const handler = new DragHandler<DragPanResult, MouseEvent>({
         clickTolerance,
         move: (lastPoint: Point, point: Point) =>
             ({around: point, panDelta: point.sub(lastPoint)}),
         activateOnStart: true,
         moveStateManager: mouseMoveStateManager,
-        enable,
         assignEvents,
     });
-};
+    if(enable) {
+        handler.enable(dragPan??{});
+    }
+
+    return handler;
+}
 
 export function generateMouseRotationHandler({enable, clickTolerance, aroundCenter = true, minPixelCenterThreshold = 100, rotateDegreesPerPixelMoved = 0.8}: {
     clickTolerance: number;
@@ -98,7 +106,7 @@ export function generateMousePitchHandler({enable, clickTolerance, pitchDegreesP
     });
     return new DragHandler<DragPitchResult, MouseEvent>({
         clickTolerance,
-        move: (lastPoint: Point, point: Point) => 
+        move: (lastPoint: Point, point: Point) =>
             ({pitchDelta: (point.y - lastPoint.y) * pitchDegreesPerPixelMoved}),
         // prevent browser context menu when necessary; we don't allow it with rotation
         // because we can't discern rotation gesture start from contextmenu on Mac

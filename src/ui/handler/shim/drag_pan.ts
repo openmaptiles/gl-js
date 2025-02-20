@@ -26,6 +26,12 @@ export type DragPanOptions = {
      * @defaultValue 2500
      */
     maxSpeed?: number;
+    /**
+     * the buttons that can be used to drag the map.
+     * @defaultValue [0]
+     * @see https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
+     */
+    buttons?: number[];
 };
 
 /**
@@ -60,12 +66,13 @@ export class DragPanHandler {
      *      easing: bezier(0, 0, 0.3, 1),
      *      maxSpeed: 1400,
      *      deceleration: 2500,
+     *      buttons: [0,1] // left and middle mouse buttons
      *   });
      * ```
      */
     enable(options?: DragPanOptions | boolean) {
         this._inertiaOptions = options || {};
-        this._mousePan.enable();
+        this._mousePan.enable(this._inertiaOptions);
         this._touchPan.enable();
         this._el.classList.add('maplibregl-touch-drag-pan');
     }

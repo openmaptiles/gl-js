@@ -38,7 +38,7 @@ class RenderFrameEvent extends Event {
  * would return a `panDelta` on the mousemove.
  */
 export interface Handler {
-    enable(): void;
+    enable(options?): void;
     disable(): void;
     isEnabled(): boolean;
     /**

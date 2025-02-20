@@ -1,12 +1,14 @@
 import {DOM} from '../../util/dom';
 
 const LEFT_BUTTON = 0;
+const MIDDLE_BUTTON = 1;
 const RIGHT_BUTTON = 2;
 
 // the values for each button in MouseEvent.buttons
 const BUTTONS_FLAGS = {
     [LEFT_BUTTON]: 1,
-    [RIGHT_BUTTON]: 2
+    [MIDDLE_BUTTON]: 4,
+    [RIGHT_BUTTON]: 2,
 };
 
 function buttonNoLongerPressed(e: MouseEvent, button: number) {
@@ -36,14 +38,16 @@ export interface DragMoveStateManager<E extends Event> {
     isValidStartEvent: (e: E) => boolean;
     isValidMoveEvent: (e: E) => boolean;
     isValidEndEvent: (e?: E) => boolean;
+    updateButtons?: (buttons: number[]) => void;
 }
 
 export class MouseMoveStateManager implements DragMoveStateManager<MouseEvent> {
     _eventButton: number | undefined;
-    _correctEvent: (e: MouseEvent) => boolean;
+    _correctEvent: (e: MouseEvent, buttons?: number[]) => boolean;
+    _buttons: number[] = [LEFT_BUTTON];
 
     constructor(options: {
-        checkCorrectEvent: (e: MouseEvent) => boolean;
+        checkCorrectEvent: (e: MouseEvent, buttons?:number[]) => boolean;
     }) {
         this._correctEvent = options.checkCorrectEvent;
     }
@@ -58,7 +62,7 @@ export class MouseMoveStateManager implements DragMoveStateManager<MouseEvent> {
     }
 
     isValidStartEvent(e: MouseEvent) {
-        return this._correctEvent(e);
+        return this._correctEvent(e, this._buttons);
     }
 
     isValidMoveEvent(e: MouseEvent) {
@@ -74,6 +78,10 @@ export class MouseMoveStateManager implements DragMoveStateManager<MouseEvent> {
     isValidEndEvent(e: MouseEvent) {
         const eventButton = DOM.mouseButton(e);
         return eventButton === this._eventButton;
+    }
+
+    updateButtons(buttons: number[]) {
+        this._buttons = buttons;
     }
 }
 
@@ -116,7 +124,7 @@ export class OneFingerTouchMoveStateManager implements DragMoveStateManager<Touc
 
 export class MouseOrTouchMoveStateManager implements DragMoveStateManager<MouseEvent | TouchEvent> {
     constructor(
-        private mouseMoveStateManager = new MouseMoveStateManager({checkCorrectEvent: () => true}), 
+        private mouseMoveStateManager = new MouseMoveStateManager({checkCorrectEvent: () => true}),
         private oneFingerTouchMoveStateManager = new OneFingerTouchMoveStateManager()
     ) {}
 

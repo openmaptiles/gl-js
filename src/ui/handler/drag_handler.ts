@@ -62,6 +62,8 @@ export type DragMoveHandlerOptions<T, E extends Event> = {
      * If true, handler will be enabled during construction
      */
     enable?: boolean;
+
+    buttons?: number[];
 };
 
 /**
@@ -95,6 +97,9 @@ export class DragHandler<T extends DragMovementResult, E extends Event> implemen
 
         options.assignEvents(this);
 
+        if (options.buttons) {
+            this._moveStateManager.updateButtons(options.buttons);
+        }
         this.reset();
     }
 
@@ -155,7 +160,10 @@ export class DragHandler<T extends DragMovementResult, E extends Event> implemen
         this.reset(e);
     }
 
-    enable() {
+    enable(options?: { buttons?: number[] }): void {
+        if (options && options.buttons) {
+            this._moveStateManager.updateButtons(options.buttons);
+        }
         this._enabled = true;
     }
 
