@@ -437,6 +437,11 @@ export class VerticalPerspectiveTransform implements ITransform {
         };
     }
 
+    public projectPoint(p: Point) {
+        const point = vec4.transformMat4([] as any, [p.x, p.y, 0, 1], this._globeViewProjMatrix32f);
+        return new Point(point[0] / point[3], point[1] / point[3]);
+    }
+
     private _calcMatrices(): void {
         if (!this._helper._width || !this._helper._height) {
             return;

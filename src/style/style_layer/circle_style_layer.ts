@@ -61,13 +61,13 @@ export class CircleStyleLayer extends StyleLayer {
         // A circle with fixed scaling relative to the viewport gets larger in tile space as it moves into the distance
         // A circle with fixed scaling relative to the map gets smaller in viewport space as it moves into the distance
         const alignWithMap = this.paint.get('circle-pitch-alignment') === 'map';
-        const transformedPolygon = alignWithMap ? translatedPolygon : projectQueryGeometry(translatedPolygon, pixelPosMatrix);
+        const transformedPolygon = alignWithMap ? translatedPolygon : projectQueryGeometry(translatedPolygon, pixelPosMatrix, transform);
         const transformedSize = alignWithMap ? size * pixelsToTileUnits : size;
 
         for (const ring of geometry) {
             for (const point of ring) {
 
-                const transformedPoint = alignWithMap ? point : projectPoint(point, pixelPosMatrix);
+                const transformedPoint = alignWithMap ? point : transform.projectPoint(point, pixelPosMatrix);
 
                 let adjustedSize = transformedSize;
                 const projectedCenter = vec4.transformMat4([] as any, [point.x, point.y, 0, 1], pixelPosMatrix);
@@ -85,13 +85,9 @@ export class CircleStyleLayer extends StyleLayer {
     }
 }
 
-function projectPoint(p: Point, pixelPosMatrix: mat4) {
-    const point = vec4.transformMat4([] as any, [p.x, p.y, 0, 1], pixelPosMatrix);
-    return new Point(point[0] / point[3], point[1] / point[3]);
-}
-
-function projectQueryGeometry(queryGeometry: Array<Point>, pixelPosMatrix: mat4) {
+function projectQueryGeometry(queryGeometry: Array<Point>, pixelPosMatrix: mat4, transform: IReadonlyTransform) {
     return queryGeometry.map((p) => {
-        return projectPoint(p, pixelPosMatrix);
+        const projected = transform.projectPoint(p, pixelPosMatrix);
+        return new Point(projected.x, projected.y);
     });
 }

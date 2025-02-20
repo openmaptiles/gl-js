@@ -463,6 +463,11 @@ export interface IReadonlyTransform extends ITransformGetters {
     projectTileCoordinates(x: number, y: number, unwrappedTileID: UnwrappedTileID, getElevation: (x: number, y: number) => number): PointProjection;
 
     /**
+     * Projects a point in screen coordinates to tile coordinates
+     */
+    projectPoint(p: Point, pixelPosMatrix: mat4): Point;
+
+    /**
      * Returns a matrix that will place, rotate and scale a model to display at the given location and altitude
      * while also being projected by the custom layer matrix.
      * This function is intended to be called from custom layers.

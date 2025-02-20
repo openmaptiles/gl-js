@@ -317,6 +317,10 @@ export class GlobeTransform implements ITransform {
         return this.currentTransform.projectTileCoordinates(x, y, unwrappedTileID, getElevation);
     }
 
+    public projectPoint(p: Point, pixelPosMatrix: mat4): Point {
+        return this.currentTransform.projectPoint(p, pixelPosMatrix);
+    }
+
     private _calcMatrices(): void {
         if (!this._helper._width || !this._helper._height) {
             return;

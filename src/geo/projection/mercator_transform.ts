@@ -779,6 +779,11 @@ export class MercatorTransform implements ITransform {
         };
     }
 
+    projectPoint(p: Point, pixelPosMatrix: mat4) {
+        const point = vec4.transformMat4([] as any, [p.x, p.y, 0, 1], pixelPosMatrix);
+        return new Point(point[0] / point[3], point[1] / point[3]);
+    }
+
     populateCache(coords: Array<OverscaledTileID>): void {
         for (const coord of coords) {
             // Return value is thrown away, but this function will still
